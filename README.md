@@ -37,6 +37,7 @@ The initial user is a small Indian trading business receiving ordinary domestic 
 8. [Free AI and Vercel deployment](docs/FREE_DEPLOYMENT.md)
 9. [Actual backend/API guide](docs/BACKEND_API.md)
 10. [Continuation, collaboration and manual test work](docs/HANDOFF.md)
+11. [Real image OCR evaluation and test images](docs/OCR_EVALUATION.md)
 
 The user's operating preference is recorded in AGENTS.md: humans handle hosting dashboards and uploads; Codex spends usage on focused code/debugging. HANDOFF.md carries resume context and work to do during usage resets.
 

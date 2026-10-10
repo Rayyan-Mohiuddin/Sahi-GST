@@ -9,7 +9,7 @@ Updated 10 October 2026. Deadline: **Sunday 11 October, 09:00 IST**; submission 
 - Live demo: https://sahi-gst-d511.vercel.app/
 - Imported friend's latest checked commit: `3c349a8`; four deployment fixes atop our baseline.
 - This checkout preserves those fixes and adds docs plus field-confirmation/result-clarity corrections. Exact final commit: use `git log -1 --oneline` after this work is committed.
-- User confirmed the intended workflow: one shared project, separate feature branches, pull-request review/merge, then teammate continues. Use the friend's deployed repo as shared integration target; the current authenticated Salman account has read-only access there. Rayyan must add Salman-a-gamer as collaborator for direct feature-branch pushes/PRs. Local origin still points to Salman's repo; teammate points to Rayyan's. No force-push or remote replacement is needed.
+- User confirmed the workflow: one shared project, separate feature branches, pull-request review/merge, then teammate continues. Rayyan's deployed repo is the shared integration target; Salman accepted collaborator access and shared branch pushes now work. Local origin points to Salman's repo; teammate points to Rayyan's. No force-push or remote replacement is needed.
 
 ## Continue from your friend's Codex
 
@@ -69,20 +69,21 @@ Next: test 3–5 redacted/synthetic **images** with local OCR and record misread
 
 ### Delivering this feature to the shared repo
 
-Latest access check: the attempted `git push teammate feature/invoice-extraction` returned 403, and GitHub still reports `push: false` for the authenticated Salman account. Verify Rayyan invited **Salman-a-gamer**, then accept the invitation. Invitation sent is not the same as accepted write access. Do not repeatedly retry pushes until access changes.
+Access resolved: user accepted the collaborator invitation. Both extraction and OCR-recovery branches successfully pushed to Rayyan's repo on 10 October. The earlier 403 is historical. Shared main has not been automatically merged or redeployed by this chat.
 
 Branches to merge in order:
 
 1. `feature/invoice-extraction` — parser/layout changes plus previous docs/confirmation fix.
 2. `feature/ocr-review-recovery` — extraction feedback and bounded/cancellable OCR; depends on the first branch.
+3. `feature/ocr-image-evaluation` — three image fixtures, real OCR evaluation scripts and recorded evidence; depends on the first two branches.
 
-Both are saved in Salman's repository while teammate access is blocked. Once access works, push them to teammate. On Rayyan's GitHub repo, choose **Pull requests → New pull request**, base **main**, compare **feature/invoice-extraction**. Review Files changed, add a concise description/test results, and create the PR. Rayyan reviews/merges it, verifies deployment, then repeat for the recovery branch. If the first PR is squash-merged, rebase/cherry-pick the second feature carefully so its PR does not repeat the first patch; ask Codex to handle that rather than force-pushing shared main.
+On Rayyan's GitHub repo, choose **Pull requests → New pull request**, base **main**, compare **feature/invoice-extraction**. Review Files changed, add a concise description/test results, and create the PR. Rayyan reviews/merges it, verifies deployment, then repeat for the recovery and evaluation branches. For these stacked branches, a normal merge commit preserves ancestry. If an earlier PR is squash-merged, rebase/cherry-pick later features carefully so they do not repeat prior patches; ask Codex to handle that rather than force-pushing shared main.
 
-After Rayyan grants collaborator access, push this branch to `teammate` and open a PR targeting Rayyan's `main`. The branch includes the earlier docs/confirmation commit missing from his main. Review that complete diff. Once merged, both teammates pull shared main before starting the next branch.
-
-Until then, the branch is pushed to Salman's repo. Rayyan can fetch the exact branch using a `salman` remote, run `git merge --ff-only salman/feature/invoice-extraction` from a clean up-to-date main, and push to his origin. If he has newer work and fast-forward fails, review a normal merge. This is a Git merge handoff, not a GitHub pull request across unrelated repositories. Do not present it as already merged/deployed.
+The extraction branch includes the earlier docs/confirmation commit missing from shared main. Review that complete diff. Once merged, both teammates fetch shared main before starting the next branch. Current branch pushing does not mean the features are already merged or deployed.
 
 ## Work to do while Codex allowance recovers
+
+Real image evaluation completed on feature/ocr-image-evaluation: 3 generated synthetic PNGs, 19/20 present fields correct, 2/2 expected unknowns preserved; the one misread GSTIN is flagged for review. Measured first scan 17,665 ms with loading, later scans 1,346/1,329 ms on this machine. This is not customer-invoice accuracy. Reproduction scripts, inputs and limitations are in OCR_EVALUATION.md. Next: manual phone/laptop runs and redacted unseen layouts, then final video/slides and submission checks.
 
 Recovery stage implemented: `/api/parse/` now returns per-field hints, evidence excerpts, extracted count and total field count. The UI highlights missing/ambiguous fields without inventing model confidence. Local OCR can be cancelled and stops after 90 seconds; late results cannot overwrite fields. Sixteen backend tests, four OCR lifecycle tests, TypeScript and production build pass. No physical-device/UI browser verification or cloud deployment of this stage is claimed.
 
