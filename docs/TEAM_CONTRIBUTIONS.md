@@ -42,3 +42,5 @@ Examples of appropriate specificity, only if true:
 - Interviewed two owners, synthesized correction-workflow findings and revised the demo narration.
 
 “Frontend,” “backend,” “helped with AI” and “did everything” are too vague. Include AI assistance and reused libraries according to the event's actual disclosure rules.
+
+- User reported missing login CSS and confirmed adding server API keys. Codex traced the Allauth template inheritance, fixed shared account styling and tested the authentication flow. No physical-device results claimed.

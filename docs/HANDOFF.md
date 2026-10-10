@@ -111,3 +111,6 @@ Manual checks after merging/deploying: scan a clear image and inspect field hint
 ## Resume prompt (C-R-I-S-P-E)
 
 **Context:** Continue Sahi GST from the current repository and live demo, due Sunday 11 October 09:00 IST. Read AGENTS.md, HANDOFF.md and BACKEND_API.md. **Role:** focused full-stack engineer and reviewer. **Instruction:** inspect the latest diff and complete the next documented coding task, preserving the working deployment. **Specification:** concise updates; humans handle dashboards; no paid services. **Performance:** test the changed behaviour and report exact evidence, blockers and commit. **Example:** an unextractable GSTIN stays unknown for user review; editing a confirmed total requires reconfirmation, and passing checks do not imply the original invoice was repaired.
+
+## Latest release work — codex/auth-release-checks
+Shared main 2aaa256 includes all prior feature work. Auth styling fixed at the current Allauth layout; two auth tests pass. Live session reports cloud_extraction=true and PostgreSQL on 10 October; this confirms configuration gates only, not provider success. User has no approved interview quote. Friend test set and physical two-phone checks remain pending. Commit: use git log -1 after this checkpoint.

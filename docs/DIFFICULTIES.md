@@ -106,3 +106,6 @@ Record actual events. Status values: resolved in planning, verified fixed, open,
 - Related commit/artifact:
 
 Never write “fixed” without verification. Record failed attempts when they explain the final decision, without including secrets or customer data.
+
+### Auth layout fix — 10 October
+Allauth entrance pages bypassed account/base.html, leaving login unstyled. Added the current allauth/layouts/base.html override, responsive form styles and checkbox/focus treatment. Two regression tests verify branded forms and signup/login/logout/session behavior (SQLite).
