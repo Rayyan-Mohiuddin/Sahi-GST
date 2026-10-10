@@ -114,3 +114,6 @@ Manual checks after merging/deploying: scan a clear image and inspect field hint
 
 ## Latest release work — codex/auth-release-checks
 Shared main 2aaa256 includes all prior feature work. Auth styling fixed at the current Allauth layout; two auth tests pass. Live session reports cloud_extraction=true and PostgreSQL on 10 October; this confirms configuration gates only, not provider success. User has no approved interview quote. Friend test set and physical two-phone checks remain pending. Commit: use git log -1 after this checkpoint.
+
+## Release checkpoint (latest)
+Branch codex/auth-release-checks: auth fix 8aa68bc, AI timeout recovery bd7d8a3; subsequent UI polish and acceptance checklist are on this branch. 32 SQLite backend tests, 11 frontend tests and production build pass. User confirms Gemini variables/redeployment; live configuration true, actual inference still unverified. Browser preview denied by security policy; no physical phone/voice verification claimed. Next: merge branch, run docs/RELEASE_ACCEPTANCE.md on two phones, provide friend cases and actual Gemini result. UI changes are build-verified, visual inspection pending. Humans: record demo/slides/contributions and submission evidence while Codex unavailable.

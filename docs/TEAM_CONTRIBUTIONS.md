@@ -44,3 +44,5 @@ Examples of appropriate specificity, only if true:
 “Frontend,” “backend,” “helped with AI” and “did everything” are too vague. Include AI assistance and reused libraries according to the event's actual disclosure rules.
 
 - User reported missing login CSS and confirmed adding server API keys. Codex traced the Allauth template inheritance, fixed shared account styling and tested the authentication flow. No physical-device results claimed.
+
+- User confirmed Gemini variables and redeployment and requested UI polish. Codex improved shared typography, navigation/cards, touch targets and mobile form sizing; added no-key and provider-timeout tests plus a two-phone release checklist. Physical phone and friend-test-set work is pending, not attributed as completed.
