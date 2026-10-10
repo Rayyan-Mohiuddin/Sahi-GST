@@ -3,6 +3,11 @@ import base64
 import json
 import re
 import urllib.request
+import urllib.error
+import logging
+import time
+
+logger = logging.getLogger(__name__)
 from django.conf import settings
 from .rules import FIELDS,clean_fields
 
@@ -13,9 +18,18 @@ def request_json(prompt,images=None,schema=None):
         config['thinkingConfig']={'thinkingBudget':0}
     if schema: config['responseSchema']=schema
     request=urllib.request.Request(f'https://generativelanguage.googleapis.com/v1beta/models/{settings.GEMINI_MODEL}:generateContent',data=json.dumps({'contents':[{'parts':parts}],'generationConfig':config}).encode(),headers={'Content-Type':'application/json','x-goog-api-key':settings.GEMINI_API_KEY})
-    with urllib.request.urlopen(request,timeout=35) as response: output=json.load(response)
+    started=time.monotonic()
+    try:
+        with urllib.request.urlopen(request,timeout=35) as response: output=json.load(response)
+    except urllib.error.HTTPError as exc:
+        logger.warning('gemini_failure category=http status=%s model=%s elapsed_ms=%d', exc.code, settings.GEMINI_MODEL, (time.monotonic()-started)*1000)
+        raise
+    except (OSError, ValueError):
+        logger.warning('gemini_failure category=network_or_invalid_json model=%s elapsed_ms=%d', settings.GEMINI_MODEL, (time.monotonic()-started)*1000)
+        raise
     candidates=output.get('candidates', [])
     if not candidates or candidates[0].get('finishReason') not in (None, 'STOP'):
+        logger.warning('gemini_failure category=incomplete_response model=%s', settings.GEMINI_MODEL)
         raise ValueError('AI returned a blocked or incomplete response.')
     text=''.join(part.get('text','') for part in candidates[0].get('content', {}).get('parts', []) if not part.get('thought'))
     return json.loads(text)

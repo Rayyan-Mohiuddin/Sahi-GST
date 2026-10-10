@@ -123,3 +123,5 @@ User reported a prohibited cursor, not a provider error. Consent/auth gating dis
 
 ### Presentation-time mobile AI incident
 User reported intermittent AI success, long mobile waiting, provider-unavailable message, and dangerous-site warnings on some phones. No provider logs or exact security warning supplied; root causes unverified. Added 45-second whole-request timeout, invalid-response handling, sticky scan errors and scroll to extracted fields. No security-warning bypass attempted. Google 503/504 now have specific recovery text; no automatic paid fallback.
+
+- Generic AI provider errors lacked root-cause evidence. Added status/model/elapsed-only logging, with test excluding key, invoice and provider text. HTTPS200/HSTS verified, but browser reputation warning remains unclassified. No global Google outage established.

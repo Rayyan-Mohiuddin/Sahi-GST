@@ -128,3 +128,6 @@ Checks: 33 backend tests (SQLite), 11 frontend tests, production build/TypeScrip
 
 ### Emergency mobile recovery checkpoint
 Latest codex/demo-flow-fixes adds bounded requests (45 seconds), visible mobile errors and scrolling to AI fields. 13 frontend tests and production build pass. User reports laptop/intermittent phone AI success; not independently verified. Security warning unresolved: obtain exact warning/browser/URL, never bypass it. Immediate presentation fallback: working laptop with labelled sample/local OCR. Later deck requested with pictures and sourced real-world data; not authored yet. No new feature work needed before demo.
+
+## Current top priority: availability/security warning
+Read PRIORITY_INCIDENT.md. Freeze feature polish. HTTPS works from workstation, AI configured; warning classification and upstream failure remain unverified. Added safe provider-category logging and redaction regression (12 targeted AI tests pass). Main was missing ccaa0c0 at inspection; merge remaining branch. Human next action: one synthetic AI scan and one gemini_failure log line; exact phone warning/URL/browser needed for reputation versus TLS triage.

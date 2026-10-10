@@ -118,3 +118,18 @@ class ProviderDiagnosticsTests(TestCase):
             response = self.client.post('/api/extract/', {'file': SimpleUploadedFile('invoice.png', image_bytes(), content_type='image/png'), 'consent': 'true'})
             self.assertContains(response, expected, status_code=429 if code == 429 else 502)
             self.assertNotIn('secret provider detail', response.content.decode())
+
+
+class ProviderLoggingTests(TestCase):
+    @override_settings(GEMINI_API_KEY='private-test-key', GEMINI_MODEL='gemini-2.5-flash')
+    @patch('invoices.gemini.urllib.request.urlopen')
+    def test_failure_logs_status_without_key_or_invoice(self, urlopen):
+        from urllib.error import HTTPError
+        from .gemini import request_json
+        urlopen.side_effect=HTTPError('https://example.invalid',503,'private provider text',{},None)
+        with self.assertLogs('invoices.gemini', level='WARNING') as captured:
+            with self.assertRaises(HTTPError): request_json('private invoice contents')
+        output=' '.join(captured.output)
+        self.assertIn('status=503',output)
+        for secret in ['private-test-key','private provider text','private invoice contents']:
+            self.assertNotIn(secret,output)

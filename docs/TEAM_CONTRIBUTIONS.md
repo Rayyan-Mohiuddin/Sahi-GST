@@ -50,3 +50,5 @@ Examples of appropriate specificity, only if true:
 - User reproduced disabled AI button by describing prohibited cursor. Codex traced consent/auth gating, added actionable feedback, consolidated field confirmation, polished findings/mobile styles, added password visibility and rendered the updated PDF. Phone and live-provider evidence remain pending.
 
 - User supplied real-device reports of intermittent AI and phone security warnings. Codex added request timeout/visible recovery and regression tests; did not claim provider uptime or warning resolution.
+
+- User prioritized availability/security and supplied intermittent provider-error wording. Codex checked production HTTPS/session and added redacted provider diagnostics plus incident runbook; did not claim warnings cleared.
