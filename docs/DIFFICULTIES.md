@@ -120,3 +120,6 @@ Local browser preview was rejected by browser security policy (permission denied
 User reported a prohibited cursor, not a provider error. Consent/auth gating disabled the button without an actionable explanation. The button now explains missing consent/auth, focuses consent and offers a sign-in link. Explicit consent remains required. Separately replaced unverified model default with documented gemini-2.5-flash and added safe provider error categories; live inference still pending.
 
 - UI polish build initially rejected a late CSS @import; moving font imports before style rules restored production build. PDF stamp/ledger report rendered on two pages without clipping. Confirmation is now one explicit action; no numerical AI-confidence claim added.
+
+### Presentation-time mobile AI incident
+User reported intermittent AI success, long mobile waiting, provider-unavailable message, and dangerous-site warnings on some phones. No provider logs or exact security warning supplied; root causes unverified. Added 45-second whole-request timeout, invalid-response handling, sticky scan errors and scroll to extracted fields. No security-warning bypass attempted. Google 503/504 now have specific recovery text; no automatic paid fallback.

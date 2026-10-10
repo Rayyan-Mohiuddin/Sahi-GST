@@ -48,3 +48,5 @@ Examples of appropriate specificity, only if true:
 - User confirmed Gemini variables and redeployment and requested UI polish. Codex improved shared typography, navigation/cards, touch targets and mobile form sizing; added no-key and provider-timeout tests plus a two-phone release checklist. Physical phone and friend-test-set work is pending, not attributed as completed.
 
 - User reproduced disabled AI button by describing prohibited cursor. Codex traced consent/auth gating, added actionable feedback, consolidated field confirmation, polished findings/mobile styles, added password visibility and rendered the updated PDF. Phone and live-provider evidence remain pending.
+
+- User supplied real-device reports of intermittent AI and phone security warnings. Codex added request timeout/visible recovery and regression tests; did not claim provider uptime or warning resolution.

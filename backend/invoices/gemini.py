@@ -55,5 +55,7 @@ def provider_error_message(code):
         401: 'AI key was rejected. Update GEMINI_API_KEY in the server environment and redeploy.',
         403: 'AI access denied. Check API-key restrictions and model access in Google AI Studio.',
         404: 'AI model unavailable. Set GEMINI_MODEL to a model available to your free-tier account, then redeploy.',
+        503: 'Google AI is temporarily overloaded. Retry once after a short pause or use local OCR backup.',
+        504: 'Google AI timed out. Retry once or use local OCR backup.',
         429: 'AI free quota exhausted or rate limited. Wait and retry, or use local OCR. Do not enable billing.',
     }.get(code, 'AI provider temporarily unavailable. Retry or use local OCR.')

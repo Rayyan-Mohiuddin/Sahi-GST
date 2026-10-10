@@ -65,3 +65,5 @@ summary{cursor:pointer}.scope-details p,.extracted-fields p{font-size:12px;line-
 .finding h3{font-size:17px}.finding p{font-size:13px;line-height:1.8}.evidence-values strong{font-size:20px;font-variant-numeric:tabular-nums}
 .language-panel,.gstin-review{background:#f6f8fb;border-color:#dce3e8}.fields-grid .field-needs-review input{background:#fff9e9;border-color:#bf8b2b}
 @media(max-width:720px){.fields-grid{grid-template-columns:1fr!important}.confirm-action{position:sticky;bottom:0;z-index:4;border-top:1px solid #dce3e8;padding:10px 0 max(12px,env(safe-area-inset-bottom));box-shadow:0 -8px 16px #ffffffed}.confirm-action p{font-size:11px;margin-bottom:8px}.fields-grid input{font-size:16px}.tax-context{padding:20px}.evidence-values{flex-wrap:wrap}}
+
+.scan-error{position:sticky;top:0;z-index:8;background:#fff0ed!important;box-shadow:0 4px 14px #51231c15;flex-shrink:0}#invoice-fields{scroll-margin-top:16px}
