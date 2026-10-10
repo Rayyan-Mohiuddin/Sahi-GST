@@ -12,6 +12,6 @@ urlpatterns = [
     path('api/reviews/<uuid:ident>/pages/<int:page_id>/', views.review_page),
     path('api/reviews/<uuid:ident>/report/', views.review_report),
     path('api/reviews/<uuid:ident>/explanations/', views.explanations),
-    path('api/parse/', views.parse), path('api/extract/', views.extract),
+    path('api/parse/', views.parse), path('api/parse-document/', views.parse_document), path('api/extract/', views.extract),
     re_path(r'^(?P<path>.*)$', views.frontend),
 ]

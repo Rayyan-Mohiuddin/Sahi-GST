@@ -6,9 +6,18 @@ from pathlib import Path
 import base64
 import io
 from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
 from .document_check import check_invoice_text
 
 class DocumentAndImageTests(TestCase):
+    def test_selectable_pdf_is_parsed_before_ocr(self):
+        from reportlab.pdfgen.canvas import Canvas
+        raw = io.BytesIO(); pdf = Canvas(raw); pdf.drawString(72, 720, 'Tax Invoice'); pdf.drawString(72, 700, 'Invoice No: PDF/001'); pdf.drawString(72, 680, 'Grand total: 1000.00'); pdf.save()
+        response = Client().post('/api/parse-document/', {'file': SimpleUploadedFile('invoice.pdf', raw.getvalue(), content_type='application/pdf')})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['used_embedded_text'])
+        self.assertEqual(response.json()['fields']['invoice_number'], 'PDF/001')
+
     def test_rejects_noninvoice_text_but_not_missing_invoice_fields(self):
         self.assertEqual(check_invoice_text('A cat on a sofa')['status'],'not_recognized')
         self.assertEqual(check_invoice_text('Tax invoice\nSupplier: Demo\nTotal: 100')['status'],'invoice_like')
@@ -76,8 +85,22 @@ class ParserLayoutTests(TestCase):
         self.assertIsNone(result['fields']['invoice_date'])
         self.assertEqual(hints['total']['evidence'], 'Grand total: 1000')
 
+    def test_safe_field_specific_corrections_and_low_quality_review(self):
+        result = parse_invoice('Supplier GSTIN: 27ABCDE1234F1ZO\nInvoice No: INV@/002\nGrand total: Rs. 1O00.00', {'confidence': 95, 'quality': {'score': 35}})
+        self.assertEqual(result['fields']['supplier_gstin'], '27ABCDE1234F1Z0')
+        self.assertEqual(result['fields']['invoice_number'], 'INV/002')
+        self.assertEqual(result['fields']['total'], '1000.00')
+        self.assertEqual({x['field'] for x in result['corrections']}, {'supplier_gstin','invoice_number','total'})
+        self.assertIn('low_image_quality', {x['reason'] for x in result['review_fields']})
+
+    def test_ambiguous_gstin_is_not_guessed(self):
+        result = parse_invoice('Supplier GSTIN: 27ABCDE1234F1Z5')
+        self.assertEqual(result['fields']['supplier_gstin'], '27ABCDE1234F1Z5')
+        self.assertEqual(result['corrections'], [])
+        self.assertEqual(next(x['reason'] for x in result['review_fields'] if x['field']=='supplier_gstin'), 'identifier_structure')
+
 def sample():
-    return {'supplier_name': 'Demo Supplies', 'supplier_gstin': '27ABCDE1234F1Z5', 'buyer_name': 'Demo Buyer', 'buyer_gstin': '27PQRST5678L1Z2', 'invoice_number': 'DEMO/001', 'invoice_date': '2026-10-09', 'description': 'Synthetic goods', 'taxable_value': '10000', 'cgst': '900', 'sgst': '900', 'igst': '0', 'tax_rate': '18', 'total': '12800', 'round_off': '0'}
+    return {'supplier_name': 'Demo Supplies', 'supplier_gstin': '27ABCDE1234F1Z0', 'buyer_name': 'Demo Buyer', 'buyer_gstin': '27PQRST5678L1Z0', 'invoice_number': 'DEMO/001', 'invoice_date': '2026-10-09', 'description': 'Synthetic goods', 'taxable_value': '10000', 'cgst': '900', 'sgst': '900', 'igst': '0', 'tax_rate': '18', 'total': '12800', 'round_off': '0'}
 
 class RuleTests(TestCase):
     def test_difference(self):

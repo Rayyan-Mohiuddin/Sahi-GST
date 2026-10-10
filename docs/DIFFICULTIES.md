@@ -139,3 +139,9 @@ User reported a prohibited cursor, not a provider error. Consent/auth gating dis
 - User explicitly authorized deployment. Committed `66e1ca0`, pushed `codex/ai-provider-diagnostics`, created PR #8, waited for both existing Vercel previews to pass, then merged as `ca103b7` using the tested head SHA.
 - Both connected Vercel production projects succeeded. Verified the intended `sahi-gst-d511.vercel.app` homepage (200, branded) and database health endpoint (200, status ok) after target production deployment `9utWjTF1U9zpFxssJSQmdCnybcND` completed. No dashboard configuration or secret was changed.
 - Deployment is verified; successful authenticated Gemini extraction and the original upstream failure's precise cause remain unverified. Next scan will provide a safe status/reference if it fails.
+
+### Camera-photo OCR reliability — 10 October
+
+- **Problem:** local OCR went straight to label parsing, so camera quality and character ambiguity had no quality/confidence gate; digital PDFs were rejected.
+- **Fix:** added source-preserving browser preprocessing, quality score/warnings, line confidence, auditable safe normalizations, GSTIN checksum validation, selectable-PDF text-first processing and rendered-PDF local OCR fallback.
+- **Verification:** 47 Django tests, 14 frontend tests, TypeScript and production build pass locally. Camera hardware and unseen customer invoices remain unverified.

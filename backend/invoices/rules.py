@@ -2,9 +2,11 @@
 import re
 from datetime import date, timedelta
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from .gstin import GSTIN_PATTERN, valid as valid_gstin
+from .ocr_config import ocr_config
 
 RULE_VERSION = '2026-10-10.1'
-GSTIN = re.compile(r'^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$')
+GSTIN = GSTIN_PATTERN
 TEXT_FIELDS = ['supplier_name', 'supplier_gstin', 'buyer_name', 'buyer_gstin', 'invoice_number', 'invoice_date', 'place_of_supply', 'description']
 MONEY_FIELDS = ['taxable_value', 'cgst', 'sgst', 'igst', 'total', 'round_off']
 FIELDS = TEXT_FIELDS + MONEY_FIELDS + ['tax_rate']
@@ -50,8 +52,8 @@ def validate(data):
             add('F01', key, 'pass', f'{label} provided', 'Present in the confirmed fields; not independently verified.', f[key])
     for key in ['supplier_gstin', 'buyer_gstin']:
         if f[key]:
-            ok = bool(GSTIN.fullmatch(f[key]))
-            add('I01', key, 'pass' if ok else 'issue', 'GSTIN structure checked' if ok else 'GSTIN structure differs', 'Character pattern only; no checksum or registration lookup.' if ok else 'Confirm the original GSTIN. Expected a 15-character GSTIN pattern.', f[key])
+            ok = valid_gstin(f[key])
+            add('I01', key, 'pass' if ok else 'issue', 'GSTIN structure and checksum checked' if ok else 'GSTIN structure/checksum differs', 'Format and checksum only; this does not check active registration or identity.' if ok else 'Confirm the original GSTIN. Expected a valid 15-character GSTIN and checksum.', f[key])
     if f['invoice_number']:
         ok = bool(re.fullmatch(r'[A-Za-z0-9/-]{1,16}', f['invoice_number']))
         add('I02', 'invoice_number', 'pass' if ok else 'review', 'Invoice number format', 'Expected up to 16 letters, digits, hyphens or slashes in the supported tax-invoice case; confirm document type if different.', f['invoice_number'])
@@ -72,7 +74,7 @@ def validate(data):
     if all(values[k] is not None for k in components) and all(values[k] >= 0 for k in components if k != 'round_off'):
         expected = sum(values[k] for k in components if k != 'total')
         difference = values['total'] - expected
-        ok = money(difference) == '0.00'
+        ok = abs(difference) <= Decimal(str(ocr_config()['arithmetic_tolerance']))
         add('M04', 'total', 'pass' if ok else 'issue', 'Invoice total agrees' if ok else f'Total differs by ₹{abs(difference):,.2f}', 'Taxable value + CGST + SGST + IGST + stated round-off. Confirm all extracted amounts before requesting a correction.', money(values['total']), money(expected))
     else:
         add('M04', 'total', 'not_checked', 'Total check waiting', 'All component amounts must be confirmed numeric values first.')

@@ -66,7 +66,7 @@ def reviews(request):
         if data.get('scope_confirmed') is not True:
             return error('Confirm this is a supported single-rate domestic B2B goods invoice before checking.')
         source = data.get('source', 'manual')
-        if source not in ['manual', 'local_ocr', 'gemini', 'sample']:
+        if source not in ['manual', 'local_ocr', 'embedded_pdf_text', 'gemini', 'sample']:
             return error('Unknown extraction source.')
         if source == 'local_ocr':
             ocr_text = data.get('ocr_text', '')
@@ -83,10 +83,17 @@ def reviews(request):
             original_id = original.id
         pages=[]
         if data.get('save_image') is True:
-            pages=decode_pages(data)
+            if source == 'embedded_pdf_text' and data.get('document_data'):
+                try:
+                    raw = base64.b64decode(data['document_data'], validate=True)
+                    if len(raw) > MAX_TOTAL or not raw.startswith(b'%PDF'): raise ValueError
+                except (ValueError, TypeError): return error('Invalid PDF document.')
+                pages=[]; image_bytes,image_mime=raw,'application/pdf'
+            else:
+                pages=decode_pages(data)
             if not pages and original_id:
                 pages=([(bytes(original.source_image),original.source_mime)] if original.source_image else [])+[(bytes(page.data),page.mime) for page in original.pages.all()]
-        image_bytes,image_mime=pages[0] if pages else (None,'')
+        if pages: image_bytes,image_mime=pages[0]
         with transaction.atomic():
             review = Review.objects.create(owner=request.user if request.user.is_authenticated else None, session_key='' if request.user.is_authenticated else request.session.session_key, fields=result['fields'], result=result, source=source, status=result['status'], original_id=original_id,source_image=image_bytes,source_mime=image_mime)
             ReviewPage.objects.bulk_create([ReviewPage(review=review,position=index,data=raw,mime=mime) for index,(raw,mime) in enumerate(pages[1:],2)])
@@ -139,8 +146,27 @@ def parse(request):
         data = body(request)
         text = data.get('text', '')
         if not isinstance(text, str) or len(text) > 30000: return error('Text must be under 30,000 characters.')
-        return JsonResponse({**parse_invoice(text), 'document_check':check_invoice_text(text), 'source': 'local_ocr', 'message': 'Best-effort label matching. Confirm every field against the original.'})
+        metadata = data.get('ocr')
+        if metadata is not None and not isinstance(metadata, dict): return error('Invalid OCR metadata.')
+        return JsonResponse({**parse_invoice(text, metadata), 'document_check':check_invoice_text(text), 'source': 'local_ocr', 'message': 'Best-effort label matching. Confirm every field against the original.'})
     except (ValueError, TypeError): return error('Invalid request.')
+
+@require_http_methods(['POST'])
+def parse_document(request):
+    """Prefer selectable PDF text. A textless PDF is explicitly sent to OCR fallback."""
+    upload = request.FILES.get('file')
+    if not upload or upload.size > MAX_TOTAL: return error('Choose one PDF under 3 MB.')
+    if upload.content_type not in ['application/pdf'] and not upload.name.lower().endswith('.pdf'): return error('Choose a PDF document.')
+    try:
+        from pypdf import PdfReader
+        reader = PdfReader(upload)
+        if len(reader.pages) > MAX_PAGES: return error('Upload at most 5 pages of one invoice.')
+        text = '\n'.join((page.extract_text() or '') for page in reader.pages).strip()
+    except Exception:
+        return error('This PDF could not be read. Try the original export or use a clear image.', 422)
+    if text:
+        return JsonResponse({**parse_invoice(text), 'document_check':check_invoice_text(text), 'source':'embedded_pdf_text', 'used_embedded_text':True, 'message':'Selectable PDF text was used before OCR. Confirm every field against the original.'})
+    return JsonResponse({'used_embedded_text':False, 'needs_ocr_fallback':True, 'message':'This PDF has no selectable text. It will be rendered locally for OCR; use a clear scan.'})
 
 @require_http_methods(['POST'])
 def extract(request):

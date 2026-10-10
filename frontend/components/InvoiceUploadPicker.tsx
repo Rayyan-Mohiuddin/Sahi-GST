@@ -20,10 +20,10 @@ export const InvoiceUploadPicker=forwardRef<UploadPickerHandle,{busy:boolean;has
   useImperativeHandle(ref,()=>({openFiles:()=>{if(!busy&&!cameraOpen)files.current?.click();}}),[busy,cameraOpen]);
   const pick=(event:React.ChangeEvent<HTMLInputElement>)=>{const picked=Array.from(event.target.files||[]);event.target.value='';if(picked.length)onFiles(picked,true);};
   return <div className="upload-actions">
-    <input ref={files} disabled={busy} multiple type="file" accept="image/jpeg,image/png" className="sr-only" aria-label="Select invoice pages from files" onChange={pick}/>
+    <input ref={files} disabled={busy} multiple type="file" accept="image/jpeg,image/png,application/pdf" className="sr-only" aria-label="Select invoice pages or a PDF" onChange={pick}/>
     <button className="button secondary full" disabled={busy||cameraOpen} onClick={()=>files.current?.click()}><UploadCloud size={16}/>{hasFile?'Add invoice pages':'Choose from files'}</button>
     <button className="button secondary full" disabled={busy||cameraOpen} onClick={openCamera}><Camera size={16}/>Take a photo</button>
-    <small>Up to 5 JPEG/PNG pages of the same invoice, 3 MB combined. Files opens a picker; Photo opens a live camera preview.</small>
+    <small>One PDF with selectable text, or up to 5 JPEG/PNG pages, 3 MB combined. Files opens a picker; Photo opens a live camera preview.</small>
     {cameraOpen&&<div className="camera-preview"><div><strong>Camera preview</strong><button className="icon-button" onClick={stop} aria-label="Close camera"><X size={18}/></button></div><video ref={video} autoPlay muted playsInline/>{error?<p role="alert">{error}</p>:!ready?<p role="status">Waiting for camera permission…</p>:<button className="button primary full" onClick={takePhoto}><Camera size={16}/>Capture page</button>}</div>}
   </div>;
 });
