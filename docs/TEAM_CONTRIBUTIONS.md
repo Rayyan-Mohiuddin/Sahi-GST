@@ -48,3 +48,7 @@ Examples of appropriate specificity, only if true:
 - User confirmed Gemini variables and redeployment and requested UI polish. Codex improved shared typography, navigation/cards, touch targets and mobile form sizing; added no-key and provider-timeout tests plus a two-phone release checklist. Physical phone and friend-test-set work is pending, not attributed as completed.
 
 - User reproduced disabled AI button by describing prohibited cursor. Codex traced consent/auth gating, added actionable feedback, consolidated field confirmation, polished findings/mobile styles, added password visibility and rendered the updated PDF. Phone and live-provider evidence remain pending.
+
+- User supplied the production AI scan's Vercel 502 invocation details (10 October, 16:46 IST). Codex compared shared main with the stale local checkout, prepared `codex/ai-provider-diagnostics` from `1e206ed`, added safe provider diagnostics and one bounded transient retry, and verified all 42 backend tests in SQLite. Production model confirmation, PR/deployment and live inference remain pending; this is not a verified fix of the upstream provider failure.
+
+- User identified Gemini 3.8 Flash. Codex checked Google's current official model/migration/pricing documentation, corrected 3.8 generation settings and the default/example, retained explicit 2.5 compatibility, and verified all 44 backend tests in SQLite. Exact deployment configuration and successful live scan remain to be verified after the patch is deployed.

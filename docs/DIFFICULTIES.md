@@ -120,3 +120,16 @@ Local browser preview was rejected by browser security policy (permission denied
 User reported a prohibited cursor, not a provider error. Consent/auth gating disabled the button without an actionable explanation. The button now explains missing consent/auth, focuses consent and offers a sign-in link. Explicit consent remains required. Separately replaced unverified model default with documented gemini-2.5-flash and added safe provider error categories; live inference still pending.
 
 - UI polish build initially rejected a late CSS @import; moving font imports before style rules restored production build. PDF stamp/ledger report rendered on two pages without clipping. Confirmation is now one explicit action; no numerical AI-confidence claim added.
+
+### Production AI extraction 502 — 10 October, 16:46 IST
+
+- **Observed:** user supplied production request `76ptg-1791631000121-d9445ca938a1`, deployment `dpl_9Chj6Mpw18QnngGDLbSkqcHEzUn5`, function duration 1.37 seconds, app HTTP 502 and “AI provider temporarily unavailable.” Current code emits that wording for upstream HTTP errors outside 400/401/403/404/429; exact upstream status remains unknown. This is not evidence of the 35-second timeout, and “No outgoing requests” in the summary is not proof no network request occurred.
+- **Diagnostic gap:** caught HTTP errors were replaced with app 502 without safe provider logging. Added reference IDs, upstream HTTP and allowlisted Google status to the extraction error and structured log text. Do not emit provider messages/details, keys, exception text or document contents.
+- **Resilience:** same-model retry once for HTTP 500/502/503/504, with jitter and the remaining timeout budget. No automatic retry for permanent/quota errors and no paid/model fallback.
+- **Verification:** 42 local SQLite backend tests pass, including 9 new tests of transient recovery, retry exhaustion, request budget, non-retry errors, malformed output and private-data exclusion. No production deployment or live Gemini fix is claimed. Actual GEMINI_MODEL and a diagnostic scan after deployment are pending.
+
+### Gemini 3.8 compatibility follow-up
+
+- User identified the production model as “3.8 flash.” Official model docs confirm `gemini-3.8-flash` supports image input and structured output; it is not an invented/invalid model. Google's current [migration guide](https://ai.google.dev/gemini-api/docs/generate-content/latest-model) instructs removing deprecated sampling parameters and using thinking levels. [Pricing](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.8-flash) lists a free tier; actual account access/quota is still unverified.
+- Existing adapter always sent `temperature: 0`. Removed that override for 3.8 and set supported `thinkingLevel: low`. Explicit 2.5 Flash configuration still uses its own supported parameters. Default/example now match 3.8. This is a compatibility correction, not evidence that the hidden upstream HTTP failure was caused by temperature.
+- All 44 backend tests pass in local SQLite, including new 3.8 image/schema request and 2.5 compatibility coverage. Deployment/live inference still pending; exact Production model string should be `gemini-3.8-flash`.

@@ -1,19 +1,95 @@
 """One optional free-tier adapter. No automatic paid/provider fallback."""
 import base64
 import json
+import logging
+import random
 import re
+import time
+import urllib.error
 import urllib.request
+import uuid
 from django.conf import settings
 from .rules import FIELDS,clean_fields
 
+logger = logging.getLogger(__name__)
+TRANSIENT_HTTP_CODES = {500, 502, 503, 504}
+PROVIDER_STATUSES = {
+    'INVALID_ARGUMENT', 'FAILED_PRECONDITION', 'OUT_OF_RANGE', 'UNAUTHENTICATED',
+    'PERMISSION_DENIED', 'NOT_FOUND', 'RESOURCE_EXHAUSTED', 'INTERNAL',
+    'UNAVAILABLE', 'DEADLINE_EXCEEDED', 'UNKNOWN', 'UNIMPLEMENTED',
+}
+
+
+def diagnostic_model():
+    model = settings.GEMINI_MODEL
+    return model if re.fullmatch(r'[a-z0-9][a-z0-9._-]{0,99}', model) and model != settings.GEMINI_API_KEY else 'invalid-model-setting'
+
+
+def provider_failure(exc, operation):
+    """Return and log only safe categories; never log exception text or payloads."""
+    reference = uuid.uuid4().hex[:12]
+    code = exc.code if isinstance(exc, urllib.error.HTTPError) else None
+    status = None
+    if code is not None:
+        try:
+            payload = json.loads(exc.read(8192))
+            candidate = payload.get('error', {}).get('status')
+            if isinstance(candidate, str) and candidate in PROVIDER_STATUSES:
+                status = candidate
+        except (ValueError, TypeError, AttributeError, OSError):
+            pass
+        finally:
+            exc.close()
+        kind = 'http_error'
+        message = provider_error_message(code)
+    elif isinstance(exc, TimeoutError) or (isinstance(exc, urllib.error.URLError) and isinstance(exc.reason, TimeoutError)):
+        kind = 'timeout'
+        message = 'AI provider timed out. Retry or use local OCR.'
+    elif isinstance(exc, (urllib.error.URLError, OSError)):
+        kind = 'connection_error'
+        message = 'Could not connect to the AI provider. Retry or use local OCR.'
+    else:
+        kind = 'invalid_response' if isinstance(exc, (ValueError, TypeError, KeyError, IndexError)) else 'internal_error'
+        message = 'AI did not return verifiable data. Retry or use local OCR.'
+    logger.warning(
+        'gemini_failure reference=%s operation=%s model=%s kind=%s upstream_http=%s upstream_status=%s',
+        reference, operation, diagnostic_model(), kind, code, status,
+    )
+    suffix = f' Provider HTTP {code}.' if code is not None else ''
+    return {
+        'error': f'{message}{suffix} Reference: {reference}.',
+        'reference': reference, 'error_code': kind, 'provider_http_status': code,
+        'provider_status': status,
+    }
+
+
 def request_json(prompt,images=None,schema=None):
     parts=[{'text':prompt}]+[{'inlineData':{'mimeType':mime,'data':base64.b64encode(raw).decode()}} for raw,mime in images or []]
-    config={'responseMimeType':'application/json','temperature':0,'maxOutputTokens':3500}
+    config={'responseMimeType':'application/json','maxOutputTokens':3500}
     if settings.GEMINI_MODEL in ('gemini-2.5-flash', 'gemini-2.5-flash-lite'):
+        config['temperature']=0
         config['thinkingConfig']={'thinkingBudget':0}
+    elif settings.GEMINI_MODEL == 'gemini-3.8-flash':
+        # 3.8 uses thinking levels, not a token budget; sampling overrides are
+        # deprecated. Low is supported; minimal is not supported by this model.
+        config['thinkingConfig']={'thinkingLevel':'low'}
     if schema: config['responseSchema']=schema
     request=urllib.request.Request(f'https://generativelanguage.googleapis.com/v1beta/models/{settings.GEMINI_MODEL}:generateContent',data=json.dumps({'contents':[{'parts':parts}],'generationConfig':config}).encode(),headers={'Content-Type':'application/json','x-goog-api-key':settings.GEMINI_API_KEY})
-    with urllib.request.urlopen(request,timeout=35) as response: output=json.load(response)
+    # One retry for transient HTTP failures only, within a 45-second request
+    # budget. Keep time for Django to respond within Vercel's 60-second limit.
+    deadline = time.monotonic() + 45
+    for attempt in range(2):
+        try:
+            with urllib.request.urlopen(request, timeout=min(35, max(1, deadline - time.monotonic()))) as response:
+                output = json.load(response)
+            break
+        except urllib.error.HTTPError as exc:
+            delay = 1 + random.random() * 0.5
+            if attempt or exc.code not in TRANSIENT_HTTP_CODES or deadline - time.monotonic() < delay + 5:
+                raise
+            logger.warning('gemini_retry model=%s upstream_http=%s attempt=1', diagnostic_model(), exc.code)
+            exc.close()
+            time.sleep(delay)
     candidates=output.get('candidates', [])
     if not candidates or candidates[0].get('finishReason') not in (None, 'STOP'):
         raise ValueError('AI returned a blocked or incomplete response.')
@@ -56,4 +132,8 @@ def provider_error_message(code):
         403: 'AI access denied. Check API-key restrictions and model access in Google AI Studio.',
         404: 'AI model unavailable. Set GEMINI_MODEL to a model available to your free-tier account, then redeploy.',
         429: 'AI free quota exhausted or rate limited. Wait and retry, or use local OCR. Do not enable billing.',
+        500: 'AI provider encountered an internal error. Retry or use local OCR.',
+        502: 'AI provider gateway failed. Retry or use local OCR.',
+        503: 'AI provider is currently unavailable. Retry shortly or use local OCR.',
+        504: 'AI provider exceeded its processing deadline. Retry or use local OCR.',
     }.get(code, 'AI provider temporarily unavailable. Retry or use local OCR.')
