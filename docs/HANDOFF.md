@@ -131,3 +131,5 @@ Latest codex/demo-flow-fixes adds bounded requests (45 seconds), visible mobile 
 
 ## Current top priority: availability/security warning
 Read PRIORITY_INCIDENT.md. Freeze feature polish. HTTPS works from workstation, AI configured; warning classification and upstream failure remain unverified. Added safe provider-category logging and redaction regression (12 targeted AI tests pass). Main was missing ccaa0c0 at inspection; merge remaining branch. Human next action: one synthetic AI scan and one gemini_failure log line; exact phone warning/URL/browser needed for reputation versus TLS triage.
+
+Production 35.14-second extraction failure investigated: timeout likely, upstream category still needed. Added exact timeout/network/schema error separation; 14 targeted AI tests pass. Await GEMINI_MODEL name and post-deployment category log. Browser warning remains separate/unresolved.

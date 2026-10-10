@@ -163,8 +163,14 @@ def extract(request):
         return JsonResponse(data)
     except urllib.error.HTTPError as exc:
         return error(provider_error_message(exc.code),429 if exc.code==429 else 502)
+    except TimeoutError:
+        return error('Google AI did not respond within 35 seconds. Your invoice was not checked. Retry once or choose local OCR backup.',504)
+    except urllib.error.URLError:
+        return error('The server could not reach Google AI. Retry once or use local OCR backup.',502)
+    except (ValueError, TypeError, KeyError, IndexError):
+        return error('Google AI returned incomplete or invalid fields. Please retry or use local OCR backup.',502)
     except Exception:
-        return error('AI extraction did not return verifiable fields. Try local OCR or manual entry.',502)
+        return error('AI extraction failed unexpectedly. Use local OCR backup.',502)
 
 @require_http_methods(['POST'])
 def explanations(request,ident):

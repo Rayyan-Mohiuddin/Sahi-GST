@@ -52,3 +52,5 @@ Examples of appropriate specificity, only if true:
 - User supplied real-device reports of intermittent AI and phone security warnings. Codex added request timeout/visible recovery and regression tests; did not claim provider uptime or warning resolution.
 
 - User prioritized availability/security and supplied intermittent provider-error wording. Codex checked production HTTPS/session and added redacted provider diagnostics plus incident runbook; did not claim warnings cleared.
+
+- User supplied production 502 timing and request metadata; Codex correlated 35.14s with configured timeout and implemented/tested error separation. Provider recovery not claimed.

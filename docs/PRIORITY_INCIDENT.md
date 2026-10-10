@@ -21,3 +21,6 @@ If warning says connection not private, record the NET:: error, phone clock and 
 Other browsers/network filters require their specific warning/provider process. No device warning was independently reproduced here.
 
 Sources: https://support.google.com/chrome/answer/99020 and https://support.google.com/webmasters/answer/9044101 . Public Google status/transparency pages did not yield a readable current verdict through the research tool; no outage/clearance claim.
+
+## Supplied production evidence
+User supplied /api/extract/ 502 with execution 35.14s and generic invalid-fields text. This closely matches urllib timeout=35; timeout is leading hypothesis, not proof until category log. Vercel reports firewall Allowed and bom1->iad1 routing. No outgoing requests in platform telemetry is not proof urllib made none. Added distinct timeout504/network502/invalid-fields502 and direct/wrapped timeout classification; 14 targeted tests pass. Model value still requested. Do not increase paid quota or claim provider restored.

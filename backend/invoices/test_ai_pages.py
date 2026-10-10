@@ -133,3 +133,24 @@ class ProviderLoggingTests(TestCase):
         self.assertIn('status=503',output)
         for secret in ['private-test-key','private provider text','private invoice contents']:
             self.assertNotIn(secret,output)
+
+
+class ExtractionTimeoutTests(TestCase):
+    @override_settings(GEMINI_API_KEY='test-only', GEMINI_FREE_TIER_CONFIRMED=True)
+    @patch('invoices.views.extract_fields', side_effect=TimeoutError())
+    def test_timeout_is_not_reported_as_invalid_invoice(self, extract):
+        user=get_user_model().objects.create_user(username='timeout-extraction')
+        self.client.force_login(user)
+        response=self.client.post('/api/extract/', {'file':SimpleUploadedFile('invoice.png',image_bytes(),content_type='image/png'),'consent':'true'})
+        self.assertContains(response,'did not respond within 35 seconds',status_code=504)
+        self.assertNotIn('invalid fields',response.content.decode())
+
+    @override_settings(GEMINI_API_KEY='test-only', GEMINI_MODEL='gemini-2.5-flash')
+    @patch('invoices.gemini.urllib.request.urlopen')
+    def test_wrapped_network_timeout_is_classified(self, urlopen):
+        from urllib.error import URLError
+        from .gemini import request_json
+        urlopen.side_effect=URLError(TimeoutError())
+        with self.assertLogs('invoices.gemini',level='WARNING') as captured:
+            with self.assertRaises(TimeoutError): request_json('test')
+        self.assertIn('category=timeout',' '.join(captured.output))

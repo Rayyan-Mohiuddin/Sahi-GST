@@ -24,6 +24,14 @@ def request_json(prompt,images=None,schema=None):
     except urllib.error.HTTPError as exc:
         logger.warning('gemini_failure category=http status=%s model=%s elapsed_ms=%d', exc.code, settings.GEMINI_MODEL, (time.monotonic()-started)*1000)
         raise
+    except TimeoutError:
+        logger.warning('gemini_failure category=timeout model=%s elapsed_ms=%d', settings.GEMINI_MODEL, (time.monotonic()-started)*1000)
+        raise
+    except urllib.error.URLError as exc:
+        category='timeout' if isinstance(exc.reason, TimeoutError) else 'network'
+        logger.warning('gemini_failure category=%s model=%s elapsed_ms=%d', category, settings.GEMINI_MODEL, (time.monotonic()-started)*1000)
+        if category=='timeout': raise TimeoutError('AI provider timeout') from None
+        raise
     except (OSError, ValueError):
         logger.warning('gemini_failure category=network_or_invalid_json model=%s elapsed_ms=%d', settings.GEMINI_MODEL, (time.monotonic()-started)*1000)
         raise
