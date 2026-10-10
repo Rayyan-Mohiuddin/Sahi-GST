@@ -133,3 +133,9 @@ User reported a prohibited cursor, not a provider error. Consent/auth gating dis
 - User identified the production model as “3.8 flash.” Official model docs confirm `gemini-3.8-flash` supports image input and structured output; it is not an invented/invalid model. Google's current [migration guide](https://ai.google.dev/gemini-api/docs/generate-content/latest-model) instructs removing deprecated sampling parameters and using thinking levels. [Pricing](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.8-flash) lists a free tier; actual account access/quota is still unverified.
 - Existing adapter always sent `temperature: 0`. Removed that override for 3.8 and set supported `thinkingLevel: low`. Explicit 2.5 Flash configuration still uses its own supported parameters. Default/example now match 3.8. This is a compatibility correction, not evidence that the hidden upstream HTTP failure was caused by temperature.
 - All 44 backend tests pass in local SQLite, including new 3.8 image/schema request and 2.5 compatibility coverage. Deployment/live inference still pending; exact Production model string should be `gemini-3.8-flash`.
+
+### AI fix deployment completed
+
+- User explicitly authorized deployment. Committed `66e1ca0`, pushed `codex/ai-provider-diagnostics`, created PR #8, waited for both existing Vercel previews to pass, then merged as `ca103b7` using the tested head SHA.
+- Both connected Vercel production projects succeeded. Verified the intended `sahi-gst-d511.vercel.app` homepage (200, branded) and database health endpoint (200, status ok) after target production deployment `9utWjTF1U9zpFxssJSQmdCnybcND` completed. No dashboard configuration or secret was changed.
+- Deployment is verified; successful authenticated Gemini extraction and the original upstream failure's precise cause remain unverified. Next scan will provide a safe status/reference if it fails.

@@ -4,7 +4,7 @@ Updated 10 October 2026. Deadline: **Sunday 11 October, 09:00 IST**; submission 
 
 ## Current AI failure investigation — codex/ai-provider-diagnostics
 
-Base: shared main `1e206ed` (PR #7). User explicitly authorized deployment of the tested diagnostic/3.8 compatibility patch on `codex/ai-provider-diagnostics`. Release is being prepared through the shared PR workflow; production success and live inference are not yet verified. The older local main remains at `3c349a8`.
+Released: fix commit `66e1ca0`, merged by [PR #8](https://github.com/Rayyan-Mohiuddin/Sahi-GST/pull/8) as shared main `ca103b71042c1699acd2f3a478b0cced3d6d83b2`. User explicitly authorized deployment. Both existing Vercel preview and production integrations succeeded. Target production deployment: `https://vercel.com/rayyan-mohiuddins-projects/sahi-gst-d511/9utWjTF1U9zpFxssJSQmdCnybcND`, GitHub deployment ID `6980166177`, environment Production – sahi-gst-d511. After completion, `https://sahi-gst-d511.vercel.app/` returned 200 with Sahi GST branding and `/api/health/` returned 200 with `status: ok`. Live Gemini inference is still unverified. The older local main remains at `3c349a8`; current local feature branch holds the fix and release notes.
 
 User supplied the production `/api/extract/` failure from 10 October 16:46:40 IST: app HTTP 502, function duration 1.37 seconds, request `76ptg-1791631000121-d9445ca938a1`, deployment `dpl_9Chj6Mpw18QnngGDLbSkqcHEzUn5`. Exact UI message maps to an unhandled upstream HTTP status. The app previously discarded that status/body and logged no provider diagnostic; Vercel's “No outgoing requests” summary does not resolve the cause. No provider outage, key problem or model problem has been proven. User reports “3.8 flash”; the exact environment string must be `gemini-3.8-flash`.
 
@@ -12,9 +12,9 @@ Patch: extraction errors log safe model/category/upstream HTTP/allowlisted Googl
 
 Model compatibility update: official [3.8 generateContent migration guide](https://ai.google.dev/gemini-api/docs/generate-content/latest-model) says to remove deprecated sampling parameters and use thinking levels. Removed the global temperature override; 3.8 now uses `thinkingLevel: low` (not unsupported `minimal`), while explicitly selected 2.5 Flash retains its supported budget/temperature. Default/example restored to the user's 3.8 model. Official pricing lists a free tier, but the actual account's quota/access is not verified. This corrects a documented compatibility gap, not a proven cause of the reported generic provider error.
 
-Checks: all **44 Django tests pass in local SQLite mode** using Python 3.14, including 11 new transport/diagnostic/model-request tests; `git diff --check` passes. Mock provider calls only; no live inference, production deployment or PostgreSQL rerun claimed. Frontend and schema unchanged.
+Checks: all **44 Django tests pass in local SQLite mode** using Python 3.14, including 11 new transport/diagnostic/model-request tests; `git diff --check` passes. Both Vercel previews and production builds succeeded; live homepage/database health pass. Mock provider calls only; no live inference or full PostgreSQL test rerun claimed. Frontend and schema unchanged.
 
-Next: complete the user-authorized PR/merge and verify Vercel production deployment. Ensure Production GEMINI_MODEL is exactly `gemini-3.8-flash`. Sign in and scan a synthetic invoice with consent. If it fails, share the visible reference/provider status or the matching `gemini_failure` log line; never share the key.
+Next: refresh production, sign in and scan a synthetic invoice with consent. If it fails, share the visible reference/provider status or the matching `gemini_failure` log line; never share the key. The user reports Gemini 3.8 Flash; the dashboard's exact environment string has not been read or changed by this release. It should be `gemini-3.8-flash`.
 
 ## Current source/deployment
 
