@@ -9,10 +9,15 @@ from .rules import FIELDS,clean_fields
 def request_json(prompt,images=None,schema=None):
     parts=[{'text':prompt}]+[{'inlineData':{'mimeType':mime,'data':base64.b64encode(raw).decode()}} for raw,mime in images or []]
     config={'responseMimeType':'application/json','temperature':0,'maxOutputTokens':3500}
+    if settings.GEMINI_MODEL in ('gemini-2.5-flash', 'gemini-2.5-flash-lite'):
+        config['thinkingConfig']={'thinkingBudget':0}
     if schema: config['responseSchema']=schema
     request=urllib.request.Request(f'https://generativelanguage.googleapis.com/v1beta/models/{settings.GEMINI_MODEL}:generateContent',data=json.dumps({'contents':[{'parts':parts}],'generationConfig':config}).encode(),headers={'Content-Type':'application/json','x-goog-api-key':settings.GEMINI_API_KEY})
     with urllib.request.urlopen(request,timeout=35) as response: output=json.load(response)
-    text=''.join(part.get('text','') for part in output['candidates'][0]['content']['parts'] if not part.get('thought'))
+    candidates=output.get('candidates', [])
+    if not candidates or candidates[0].get('finishReason') not in (None, 'STOP'):
+        raise ValueError('AI returned a blocked or incomplete response.')
+    text=''.join(part.get('text','') for part in candidates[0].get('content', {}).get('parts', []) if not part.get('thought'))
     return json.loads(text)
 
 def extract_fields(images):
@@ -41,3 +46,14 @@ def explain_findings(findings,language):
         seen.add(ident);result.append({'id':ident,'text':text,'source':'gemini'})
     if seen!=ids: raise ValueError('Missing explanation.')
     return result
+
+
+def provider_error_message(code):
+    # Never expose provider payloads, credentials or document contents.
+    return {
+        400: 'AI request rejected. Check GEMINI_API_KEY and that GEMINI_MODEL supports image input and structured output.',
+        401: 'AI key was rejected. Update GEMINI_API_KEY in the server environment and redeploy.',
+        403: 'AI access denied. Check API-key restrictions and model access in Google AI Studio.',
+        404: 'AI model unavailable. Set GEMINI_MODEL to a model available to your free-tier account, then redeploy.',
+        429: 'AI free quota exhausted or rate limited. Wait and retry, or use local OCR. Do not enable billing.',
+    }.get(code, 'AI provider temporarily unavailable. Retry or use local OCR.')

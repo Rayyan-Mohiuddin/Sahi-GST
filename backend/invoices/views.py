@@ -20,7 +20,7 @@ from .parser import parse_invoice
 from .document_check import check_invoice_text
 from .report import build_report
 from .images import decode_pages,verify_image,MAX_PAGES,MAX_TOTAL
-from .gemini import extract_fields,explain_findings
+from .gemini import extract_fields,explain_findings,provider_error_message
 from .languages import LANGUAGES,rule_explanations
 
 def error(message, status=400): return JsonResponse({'error': message}, status=status)
@@ -162,7 +162,7 @@ def extract(request):
         if data['document_check']['status']!='invoice_like': return error('AI could not recognize a single invoice. Check the images or use local OCR/manual entry.',422)
         return JsonResponse(data)
     except urllib.error.HTTPError as exc:
-        return error('AI quota/provider unavailable. Local OCR remains available; no paid fallback is enabled.',429 if exc.code==429 else 502)
+        return error(provider_error_message(exc.code),429 if exc.code==429 else 502)
     except Exception:
         return error('AI extraction did not return verifiable fields. Try local OCR or manual entry.',502)
 

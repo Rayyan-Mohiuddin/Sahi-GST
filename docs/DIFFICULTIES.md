@@ -115,3 +115,6 @@ Provider timeouts/network errors were not caught by the explanation endpoint. It
 
 ### Visual verification blocked
 Local browser preview was rejected by browser security policy (permission denied). No alternate browser workaround attempted. Production build passes; visual/physical-device QA explicitly remains pending in RELEASE_ACCEPTANCE.md.
+
+### Disabled AI button (user reproduced)
+User reported a prohibited cursor, not a provider error. Consent/auth gating disabled the button without an actionable explanation. The button now explains missing consent/auth, focuses consent and offers a sign-in link. Explicit consent remains required. Separately replaced unverified model default with documented gemini-2.5-flash and added safe provider error categories; live inference still pending.
