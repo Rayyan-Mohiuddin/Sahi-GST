@@ -55,6 +55,9 @@ All routes have a trailing slash. POST/DELETE requests require Django CSRF handl
 | GET `/api/reviews/` | Session/account | Up to 100 newest reviews belonging to that user/session |
 | POST `/api/reviews/` | JSON `fields`, `source`, `scope_confirmed: true`, optional `original_id` | 201 with a newly saved review, deterministic result and draft |
 | GET `/api/reviews/{uuid}/` | Session/account | Owned review and draft; another session receives 404 |
+| GET `/api/reviews/{uuid}/image/` | Session/account | Saved original image; owner/session checks and private no-store cache policy |
+| GET `/api/reviews/{uuid}/report/` | Session/account | Downloadable readable PDF; owner/session checks |
+| GET `/api/reviews/report/` | Session/account | PDF of up to 100 owned review records |
 | DELETE `/api/reviews/{uuid}/` | CSRF + ownership | Deletes the owned review; does not delete other users' reviews |
 | POST `/api/extract/` | Multipart `file`, `consent=true` | Optional Gemini structured fields; requires signed-in user and configured free-tier consent flag |
 | `/accounts/…` | Allauth forms | Signup/login/logout with sessions and CSRF |
@@ -115,7 +118,11 @@ Statuses: `issue`, `review`, `pass`, `not_checked`. A review becomes `checked` w
 
 Logged-in queries filter by owner. Guest queries filter by session and a 24-hour window. Expired guest records are deleted on the next session-endpoint request, not by a precisely timed background scheduler. Account reviews persist until deleted. Guest and account histories are separate.
 
-Source image bytes are not saved by this application. Reopening a saved review shows fields/results, not a retained original image. `original_id` links review runs; it does not prove the supplier issued a corrected document, resolve older drafts, or provide full invoice-lifecycle reconciliation.
+Image retention is now optional and explicit. POST reviews can include `save_image: true` plus base64 `image_data`. Django verifies the actual JPEG/PNG bytes, 5 MB and 20-megapixel limits, then stores original bytes/mime privately in the review row. Metadata responses include protected `image_url` and `report_url`; list queries do not load image blobs. With no new image, a selected saved image can be inherited from the owned original review. Deleting/expiring the review deletes its image. Older images that were never stored remain unavailable. `original_id` links review runs but does not prove supplier correction or resolve older drafts.
+
+`/api/parse/` also returns `document_check`, screening OCR text for independent invoice/reference/amount/party cues. Local-OCR review creation requires invoice-like OCR text (`ocr_text`); unrelated or unrecognized text gets 422. This is a content heuristic with possible false positives/negatives, not authenticity or tax-document classification. Manual entry without the rejected image remains available.
+
+PDF reports use the free ReportLab library with bundled fonts, wrapped tables/findings, rule version, unchecked areas and supplier draft. They use INR labels and IST timestamps. JSON remains optional developer data. The frontend Finish action closes the already saved review; it does not mark supplier issues resolved. Workspace dropdown actions open the inbox/privacy view or sign-in/sign-out; multiple organization workspaces are not implemented.
 
 ## Optional LLM and zero-cost operation
 
@@ -130,6 +137,14 @@ Four commits (`739186f` → `3c349a8`) flattened root requirements, added pyproj
 Configuration values belong in the hosting environment: production SECRET_KEY, PostgreSQL DATABASE_URL, allowed host and HTTPS CSRF origin; DEBUG=0. Do not commit database passwords or API keys. See FREE_DEPLOYMENT.md for the original route; use the actual deployed root configuration now.
 
 ## Verification on 10 October
+
+### Multi-page / AI additions
+
+`ReviewPage` (migration 0003) stores additional ordered page images with cascade deletion; the existing first-image fields/routes remain compatible. Responses add `image_urls`; `/api/reviews/{uuid}/pages/{page_id}/` enforces review ownership. Up to 5 pages, **3 MB total**, keep base64-encoded saving under Vercel's 4.5 MB request limit. Local OCR reads pages sequentially, then parses combined text; it does not add invoice totals across pages. Different/conflicting values remain reviewable.
+
+`POST /api/extract/` accepts repeated `files` (legacy `file` still supported), requires login/consent/free-tier configuration, verifies all image bytes, and sends ordered images to schema-constrained Gemini. It returns classification, nullable fields and uncertainty hints. `POST /api/reviews/{uuid}/explanations/` accepts `language` en/hi/te and optional `use_ai:true`; default returns labelled rule templates. AI mode is owner-protected and login/quota/configuration-gated, with validated finding IDs; it never changes saved findings or calculations.
+
+Rule results add `tax_context`, summing confirmed tax components with Decimal once per invoice. This is invoice GST information, not an ITC eligibility or loss estimate. Missing/invalid amounts yield null. No source image is sent to Google automatically; consent resets when pages change. Local speech uses installed local voices; text stays available without one.
 
 - Live health and session endpoints: 200; database reports PostgreSQL; cloud extraction disabled.
 - Live synthetic API test: CSRF/session, parsing, review creation, expected arithmetic, draft and guest isolation passed; test record removed.

@@ -3,6 +3,41 @@ from .rules import validate, correction_draft
 from .parser import parse_text, parse_invoice
 import json
 from pathlib import Path
+import base64
+import io
+from PIL import Image
+from .document_check import check_invoice_text
+
+class DocumentAndImageTests(TestCase):
+    def test_rejects_noninvoice_text_but_not_missing_invoice_fields(self):
+        self.assertEqual(check_invoice_text('A cat on a sofa')['status'],'not_recognized')
+        self.assertEqual(check_invoice_text('Tax invoice\nSupplier: Demo\nTotal: 100')['status'],'invoice_like')
+        self.assertEqual(check_invoice_text('Invoice holiday photo')['status'],'not_recognized')
+
+    def test_local_ocr_review_requires_invoice_cues(self):
+        response=Client().post('/api/reviews/',data={'fields':sample(),'source':'local_ocr','scope_confirmed':True,'ocr_text':'A landscape photo'},content_type='application/json')
+        self.assertEqual(response.status_code,422)
+        from .models import Review
+        self.assertEqual(Review.objects.count(),0)
+
+    def test_saved_image_pdf_ownership_and_deletion(self):
+        image=io.BytesIO();Image.new('RGB',(20,20),'white').save(image,format='PNG')
+        a,b=Client(),Client()
+        response=a.post('/api/reviews/',data={'fields':sample(),'source':'sample','scope_confirmed':True,'save_image':True,'image_data':base64.b64encode(image.getvalue()).decode()},content_type='application/json')
+        self.assertEqual(response.status_code,201);review=response.json()
+        saved=a.get(review['image_url']);self.assertEqual(saved.content,image.getvalue());self.assertEqual(saved['Cache-Control'],'private, no-store')
+        self.assertEqual(b.get(review['image_url']).status_code,404)
+        pdf=a.get(review['report_url']);self.assertEqual(pdf.status_code,200);self.assertTrue(pdf.content.startswith(b'%PDF-'));self.assertEqual(pdf['Content-Type'],'application/pdf')
+        self.assertEqual(b.get(review['report_url']).status_code,404)
+        self.assertIsNotNone(a.get('/api/reviews/').json()['reviews'][0]['image_url'])
+        a.delete('/api/reviews/'+review['id']+'/');self.assertEqual(a.get(review['image_url']).status_code,404)
+
+    def test_invalid_image_and_opt_out(self):
+        payload={'fields':sample(),'source':'manual','scope_confirmed':True,'save_image':True,'image_data':'not-base64'}
+        self.assertEqual(Client().post('/api/reviews/',data=payload,content_type='application/json').status_code,400)
+        payload['save_image']=False
+        response=Client().post('/api/reviews/',data=payload,content_type='application/json')
+        self.assertEqual(response.status_code,201);self.assertIsNone(response.json()['image_url'])
 
 class ParserLayoutTests(TestCase):
     def test_synthetic_layouts(self):

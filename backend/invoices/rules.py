@@ -87,7 +87,9 @@ def validate(data):
         if values['igst'] > 0 and (values['cgst'] > 0 or values['sgst'] > 0):
             add('M03', 'igst', 'review', 'Mixed tax components', 'IGST and CGST/SGST are both shown. Confirm the invoice scope; jurisdiction is not decided from buyer state.')
     count = {s: sum(x['status'] == s for x in findings) for s in ['issue', 'review', 'pass', 'not_checked']}
-    return {'fields': f, 'rule_version': RULE_VERSION, 'findings': findings, 'counts': count, 'not_checked': NOT_CHECKED, 'status': 'needs_review' if count['issue'] or count['review'] else 'checked'}
+    tax_values=[values[k] for k in ['cgst','sgst','igst']]
+    tax_amount=money(sum(tax_values)) if all(x is not None and x>=0 for x in tax_values) else None
+    return {'fields': f, 'rule_version': RULE_VERSION, 'findings': findings, 'counts': count, 'not_checked': NOT_CHECKED, 'status': 'needs_review' if count['issue'] or count['review'] else 'checked', 'tax_context':{'amount':tax_amount,'label':'GST amount under review' if count['issue'] or count['review'] else 'GST amount on invoice','eligibility_checked':False}}
 
 def correction_draft(fields, result):
     problems = [x for x in result['findings'] if x['status'] in ['issue', 'review']]

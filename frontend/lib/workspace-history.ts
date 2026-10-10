@@ -1,5 +1,5 @@
 export type WorkspaceView = {nav:string; modal:boolean};
-const pages = new Set(['overview','invoices','followups','reports','settings','guide']);
+const pages = new Set(['overview','invoices','followups','reports','settings','guide','market']);
 type Port = Pick<Window,'history'|'location'|'addEventListener'|'removeEventListener'>;
 
 /** Each opened review gets one history entry, so Back closes it before leaving. */

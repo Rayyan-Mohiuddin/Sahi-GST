@@ -13,6 +13,7 @@ __pycache__/
 staticfiles/
 media/
 artifacts/
+output/
 *.log
 .DS_Store
 *.tsbuildinfo

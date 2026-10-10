@@ -6,7 +6,7 @@ The website downloads JavaScript and a WebAssembly OCR runtime plus English lang
 
 Language data is cached in IndexedDB; downloaded web resources may also be browser-cached. Later scans can reuse those assets. Clearing site data, private browsing/storage limits or browser eviction can require downloading them again. A new worker is created for each scan and terminated afterward, but cached language data can remain. The first scan is therefore often slower. Current package defaults use LSTM language data from the best-int model distribution; no better-model switch has been benchmarked here.
 
-The default source image is processed locally. The app sends extracted text to Django for parsing, and confirmed fields/results are saved in PostgreSQL. It still needs network/server access; full offline operation is not implemented. Optional Gemini mode separately sends the image to Google only after explicit consent.
+The default scan processes the source image locally. Extracted text goes to Django for parsing; confirmed fields/results go to PostgreSQL. If image saving is selected, the image is also sent to this app and retained privately with the review for later viewing. It still needs network/server access; full offline operation is not implemented. Optional Gemini separately sends the image to Google after explicit consent.
 
 Primary sources: [Tesseract.js FAQ](https://github.com/naptha/tesseract.js/blob/master/docs/faq.md), [Tesseract.js](https://github.com/naptha/tesseract.js). Runtime/model default checked in installed package source.
 
