@@ -106,3 +106,12 @@ Record actual events. Status values: resolved in planning, verified fixed, open,
 - Related commit/artifact:
 
 Never write “fixed” without verification. Record failed attempts when they explain the final decision, without including secrets or customer data.
+
+### Auth layout fix — 10 October
+Allauth entrance pages bypassed account/base.html, leaving login unstyled. Added the current allauth/layouts/base.html override, responsive form styles and checkbox/focus treatment. Two regression tests verify branded forms and signup/login/logout/session behavior (SQLite).
+
+### AI explanation resilience
+Provider timeouts/network errors were not caught by the explanation endpoint. It now returns a recoverable JSON error; rule explanations remain usable. A regression verifies timeout recovery. A key-disabled API flow verifies parsing OCR text, review, Hindi/Telugu and PDF without provider calls; this does not replace real phone OCR testing.
+
+### Visual verification blocked
+Local browser preview was rejected by browser security policy (permission denied). No alternate browser workaround attempted. Production build passes; visual/physical-device QA explicitly remains pending in RELEASE_ACCEPTANCE.md.

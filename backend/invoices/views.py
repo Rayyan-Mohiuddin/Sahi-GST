@@ -181,7 +181,7 @@ def explanations(request,ident):
         request.session['last_explanation']=timezone.now().timestamp()
         return JsonResponse({'explanations':explain_findings(review.result['findings'],LANGUAGES[language]),'source':'gemini','language':language})
     except urllib.error.HTTPError as exc: return error('AI wording unavailable. Use the rule explanation.',429 if exc.code==429 else 502)
-    except (ValueError,TypeError): return error('Explanation could not be verified. Use the rule explanation.',502)
+    except (ValueError, TypeError, KeyError, IndexError, OSError): return error('AI wording unavailable or unverifiable. Use the rule explanation.',502)
     except Exception: return error('AI wording unavailable. Use the rule explanation.',502)
 
 

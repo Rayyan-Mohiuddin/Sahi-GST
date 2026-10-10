@@ -150,3 +150,6 @@ Rule results add `tax_context`, summing confirmed tax components with Decimal on
 - Live synthetic API test: CSRF/session, parsing, review creation, expected arithmetic, draft and guest isolation passed; test record removed.
 - Earlier local PostgreSQL suite: 10 tests passed. After importing deployment fixes, local SQLite smoke-test suite (10 tests), root WSGI import, TypeScript and production Next.js export passed. Current live PostgreSQL behaviour was checked separately.
 - Browser local OCR was tested earlier. Real-world extraction accuracy and physical-device coverage remain unmeasured; use the manual testing list in HANDOFF.md.
+
+## Release update
+Live session now reports cloud_extraction=true (10 October, user configured/redeployed); this supersedes earlier disabled snapshots, but real inference remains pending. Explanation endpoint catches timeout/network/malformed-response errors with JSON 502 and preserves rule wording. Authentication uses backend/templates/allauth/layouts/base.html; account/base.html is a compatibility wrapper. Current image limits are 5 pages and 3 MB combined, superseding the old single-image 5 MB description. See RELEASE_ACCEPTANCE.md for verification scope.
