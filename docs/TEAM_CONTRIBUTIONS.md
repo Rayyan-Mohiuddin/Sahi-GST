@@ -16,9 +16,12 @@ The user supplied requirements, the locked stack, deadline correction, product n
 |---|---|---|---|---|---|
 | 2026-10-10 | User (name to fill) | Defined Sahi GST branding, corrected submission time, required free runtime and enabled Vercel setup | Conversation and planning documents | Requirements incorporated | Removed deadline ambiguity |
 | 2026-10-10 | Codex assistance | Built Next.js workspace, Django rules/API, Allauth setup, PostgreSQL integration, OCR and optional Gemini adapter | frontend/, backend/, deployment files | Production build and PostgreSQL backend suite pass; browser OCR-to-draft flow exercised | Local permissions, OCR ambiguity and database encoding |
-| — | Friend (name to fill) | Add actual reviewed/implemented work here | — | — | — |
+| 2026-10-10 | Rayyan Mohiuddin | Fixed Vercel requirements and root Django/WSGI discovery; deployed the shared baseline | Rayyan-Mohiuddin/Sahi-GST commits 739186f, f45ee19, ba0a671, 3c349a8; live demo | Live health/session and synthetic API audit pass; PostgreSQL ready | Deployment discovery and dependency configuration |
+| 2026-10-10 | User + Codex assistance | User set efficient dashboard/code division; Codex integrated friend's commits, audited API, documented backend and patched field confirmation/result clarity | AGENTS.md, BACKEND_API.md, HANDOFF.md, frontend/app/page.tsx | Backend tests, root WSGI load and typecheck pass | Repository drift and misleading confirmation state |
 
 ## Submission-ready template
+
+Latest work: user confirmed shared-branch/PR collaboration; Codex implemented conservative OCR-text parsing improvements and five synthetic layout fixtures, with 14 backend tests passing. Evidence: feature/invoice-extraction branch. Rayyan's merge/deployment of this feature is pending; record his actual review/testing once completed.
 
 **[Name]** designed/implemented **[specific feature]**, integrated **[specific component]**, and verified **[specific behaviour]** using **[test/evidence]**. Also contributed **[research, design or pitching activity]**. Evidence: **[commit or artifact]**.
 

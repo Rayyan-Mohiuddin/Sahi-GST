@@ -37,4 +37,6 @@ Dockerfile and render.yaml package the Next.js export and Django into one free R
 
 ## Current verification boundary
 
-Local frontend export, Django behaviour and local PostgreSQL are testable without any hosting account. Cloud deployment requires Vercel sign-in and database provisioning. Do not call a localhost URL the live public product. Record the final verified deployed URL in README only after the deployed flow succeeds.
+Friend's deployment https://sahi-gst-d511.vercel.app now responds successfully; live health/session and a synthetic API flow verified on 10 October. It reports PostgreSQL and cloud extraction disabled. The friend fixed Vercel entrypoint discovery using root config/wsgi.py and pyproject.toml; preserve those files. Backend/API details and remaining verification are in BACKEND_API.md and HANDOFF.md.
+
+The user handles dashboards/deployments from now on. Merge new code into the deployed repository and let the owner redeploy; ask for concise build errors only when needed. Avoid continuing the earlier duplicate dashboard setup.

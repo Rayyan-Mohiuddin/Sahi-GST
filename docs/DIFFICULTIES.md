@@ -35,7 +35,23 @@ Record actual events. Status values: resolved in planning, verified fixed, open,
 | Unclear customer value | Interview owners/bookkeeper and observe task | A |
 | Missed submission | 07:00 internal deadline, signed-out link checks | A |
 
+### Team continuation on 10 October
+
+- **Dashboard automation used too much allowance:** user explicitly requested a different workflow. Recorded in AGENTS.md and HANDOFF.md: human handles setup/deployment/uploads; Codex handles focused code/debugging and provides exact short steps.
+- **Earlier browser action blocked by usage review:** continuing Neon setup was not executed because automatic approval review could not run after a usage limit. It was not an unsafe-action determination. That earlier setup is superseded by the friend's working deployment; no bypass attempted.
+- **Separate repositories could drift:** fetched friend's four commits and fast-forwarded this clean checkout to `3c349a8`; added teammate remote. Both histories preserved. New changes go to Salman's repo; friend receives exact merge steps for the live source.
+- **Stale project status:** live API health/session checks returned 200 and PostgreSQL. Synthetic review/parsing/draft/isolation audit passed; test record removed. Replaced “no public URL” status with verified evidence and remaining limits.
+- **Field confirmation remained checked after edits:** patched frontend to clear confirmation on every field edit and explain that findings apply to entered values. TypeScript check passes; manual deployed verification remains on the handoff checklist.
+- **Friend's deployment configuration:** observed four commits fixing root requirements, metadata, WSGI discovery and bundled backend files. Root WSGI loads and backend's 10-test suite passes after integration. The rerun used local SQLite smoke-test mode; previous PostgreSQL suite and current live PostgreSQL API evidence are recorded separately.
+
 ## Append template
+
+### Invoice extraction branch on 10 October
+
+- **Collaboration assumptions:** fetched teammate/main and verified local code contains all friend's current commits plus our one documentation/confirmation commit. Started feature/invoice-extraction. GitHub reports Salman has read-only access to Rayyan's repo; documented collaborator/PR setup and the temporary Git merge handoff.
+- **Parser missed common layouts:** reproduced unsupported whitespace labels, next-line values and tax-rate-plus-amount lines with five synthetic text fixtures. Added conservative label/date/currency/section handling. Unknown/conflicting values remain null.
+- **Overlapping labels:** regression detected Supplier GSTIN being misread as supplier name. Excluded GSTIN from party-name labels and preferred the most complete label, avoiding Total taxable value being read as invoice total.
+- **Verification:** 14 backend tests pass in local SQLite smoke-test mode. This change is parsing code only; no frontend build or cloud deployment was needed. Real image tests remain a human task, not a completed accuracy benchmark.
 
 - Date/time IST:
 - Owner:

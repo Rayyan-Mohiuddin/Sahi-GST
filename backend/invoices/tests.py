@@ -1,6 +1,34 @@
 from django.test import TestCase, Client
 from .rules import validate, correction_draft
 from .parser import parse_text
+import json
+from pathlib import Path
+
+class ParserLayoutTests(TestCase):
+    def test_synthetic_layouts(self):
+        fixtures = json.loads((Path(__file__).parent / 'fixtures' / 'parser_layouts.json').read_text())
+        for fixture in fixtures:
+            with self.subTest(layout=fixture['name']):
+                parsed = parse_text(fixture['text'])
+                for field, expected in fixture['expected'].items():
+                    self.assertEqual(parsed[field], expected, field)
+
+    def test_explicit_labels_do_not_bleed_into_each_other(self):
+        parsed = parse_text('Supplier GSTIN: 27ABCDE1234F1Z5\nBuyer GSTIN: 27PQRST5678L1Z2\nInvoice Date: 2026-10-10')
+        self.assertIsNone(parsed['supplier_name'])
+        self.assertIsNone(parsed['buyer_name'])
+        self.assertIsNone(parsed['invoice_number'])
+
+    def test_next_label_is_not_a_missing_value(self):
+        parsed = parse_text('Invoice No:\nInvoice Date: 2026-10-10\nCGST:\nSGST: 450')
+        self.assertIsNone(parsed['invoice_number'])
+        self.assertIsNone(parsed['cgst'])
+
+    def test_longer_label_and_negative_accounting_value(self):
+        parsed = parse_text('Total taxable value: 10000\nRound off: (-0.50)')
+        self.assertEqual(parsed['taxable_value'], '10000')
+        self.assertIsNone(parsed['total'])
+        self.assertEqual(parsed['round_off'], '-0.50')
 
 def sample():
     return {'supplier_name': 'Demo Supplies', 'supplier_gstin': '27ABCDE1234F1Z5', 'buyer_name': 'Demo Buyer', 'buyer_gstin': '27PQRST5678L1Z2', 'invoice_number': 'DEMO/001', 'invoice_date': '2026-10-09', 'description': 'Synthetic goods', 'taxable_value': '10000', 'cgst': '900', 'sgst': '900', 'igst': '0', 'tax_rate': '18', 'total': '12800', 'round_off': '0'}
