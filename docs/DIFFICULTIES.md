@@ -46,6 +46,14 @@ Record actual events. Status values: resolved in planning, verified fixed, open,
 
 ## Append template
 
+### Mobile capture, navigation and GSTIN trust
+
+- **Camera opened from generic upload:** original single file input had capture=environment. Replaced it with separate file input without capture and camera input with capture, exposed as two clear actions. OS/browser picker details still vary; physical-device test pending.
+- **Back left the website from a review:** review state lacked a history entry. Added workspace navigation controller/hook with dialog entries, popstate handling and balanced close; four history tests pass. Closing the review aborts local scanning.
+- **Monolithic UI:** extracted upload, review dialog, GSTIN review, privacy and guide components, plus shared types and navigation hook. Other workspace views remain in the host rather than requiring a risky full routing rewrite.
+- **Exact GSTIN uncertainty:** even a pattern-valid identifier can be OCR-misread. Added prominent character review and per-identifier acknowledgement; never silently replaces characters. This improves verification, not raw recognition accuracy.
+- **Alternative engine research:** user remembers a PP-OCR-like name. Official PaddleOCR sources confirm an unwarping Python pipeline and browser SDK. Actual GSTIN/phone benchmarking is still pending; engine not replaced on speculation.
+
 ### Real-image OCR evaluation
 
 - **Collaborator access resolved:** after invitation acceptance, both tested branches pushed successfully to Rayyan's repository. PR review/merge remains a human task; shared main was not changed.
