@@ -46,3 +46,5 @@ Examples of appropriate specificity, only if true:
 - User reported missing login CSS and confirmed adding server API keys. Codex traced the Allauth template inheritance, fixed shared account styling and tested the authentication flow. No physical-device results claimed.
 
 - User confirmed Gemini variables and redeployment and requested UI polish. Codex improved shared typography, navigation/cards, touch targets and mobile form sizing; added no-key and provider-timeout tests plus a two-phone release checklist. Physical phone and friend-test-set work is pending, not attributed as completed.
+
+- User reproduced disabled AI button by describing prohibited cursor. Codex traced consent/auth gating, added actionable feedback, consolidated field confirmation, polished findings/mobile styles, added password visibility and rendered the updated PDF. Phone and live-provider evidence remain pending.

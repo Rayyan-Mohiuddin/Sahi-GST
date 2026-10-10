@@ -153,3 +153,6 @@ Rule results add `tax_context`, summing confirmed tax components with Decimal on
 
 ## Release update
 Live session now reports cloud_extraction=true (10 October, user configured/redeployed); this supersedes earlier disabled snapshots, but real inference remains pending. Explanation endpoint catches timeout/network/malformed-response errors with JSON 502 and preserves rule wording. Authentication uses backend/templates/allauth/layouts/base.html; account/base.html is a compatibility wrapper. Current image limits are 5 pages and 3 MB combined, superseding the old single-image 5 MB description. See RELEASE_ACCEPTANCE.md for verification scope.
+
+### Demo release changes
+AI adapter now defaults to gemini-2.5-flash, normalizes whitespace/models prefix and returns safe HTTP-category guidance. For supported 2.5 Flash models thinkingBudget=0 avoids using the limited output budget on reasoning. No retries to paid providers. User reported button-disabled prerequisite friction; no actual live provider error reproduced yet. The UI combined confirmation still submits scope_confirmed=true only on explicit Confirm and check. PDF ID is a record reference, not signature/tamper verification.
