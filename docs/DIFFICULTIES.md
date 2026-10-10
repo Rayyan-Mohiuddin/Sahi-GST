@@ -148,3 +148,6 @@ User reported a prohibited cursor, not a provider error. Consent/auth gating dis
 
 ### Focused-home review
 Friend UI baseline 122b63d imported. Declared pypdf missing locally caused one selectable-PDF test failure; installed dependency, 47 tests pass. Vercel preview deployed but account lacks protected-preview access; localhost saved permissions also deny browser. Requested owner/local access and did not bypass. Visual/Lighthouse/full-preview checks pending. Demo rows were misleadingly opening the same sample for different IDs; made illustrative rows noninteractive.
+# Preview branch alias — 11 October 2026
+The user-provided focused-home branch alias returns Django 400. Likely ALLOWED_HOSTS mismatch: settings include deployment/production URLs but not branch aliases. Exact Preview-only host and CSRF-origin additions documented in FOCUSED_HOME_REVIEW.md; owner redeploy and verification pending. Canonical preview access remains protected. No backend changes or security weakening.
+
