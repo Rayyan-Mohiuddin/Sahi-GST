@@ -1,5 +1,9 @@
 # Sahi GST continuation and efficient collaboration
 
+## Home-page polish — 11 October 2026
+
+Branch `codex/focused-fintech-home`, based on pushed OCR checkpoint `f65262d`. Frontend-only implementation: focused landing, separate workspace with an explicitly synthetic demo-data toggle, severity-ordered findings with collapsed details, navy/ivory palette and locally bundled Inter/Noto fonts. No changes to extraction, rules, API, database schema or deployment configuration. Local checks: 47 Django SQLite tests, 14 frontend tests, TypeScript and production export pass. Desktop and 360px screenshots captured in `docs/ui-evidence/`; preview QA and Lighthouse pending. Keep this branch unmerged until preview flows are checked. At 360px the requested long headline at 40px makes the stacked invoice extend below an 800px viewport; it remains readable without horizontal overflow. Humans can test physical camera capture and review the exact copy while preview checks run.
+
 Updated 10 October 2026. Deadline: **Sunday 11 October, 09:00 IST**; submission target **07:00 IST**.
 
 ## Current AI failure investigation — codex/ai-provider-diagnostics

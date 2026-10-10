@@ -1,0 +1,5 @@
+import type {Finding} from '../lib/types';
+const severity:Record<string,number>={issue:0,review:1,not_checked:2,pass:3};
+export function FindingCards({findings,formatMoney}:{findings:Finding[];formatMoney:(value:string|null|undefined)=>string}){
+  return <div className="findings-list">{findings.filter(item=>item.status!=='pass').slice().sort((a,b)=>(severity[a.status]??4)-(severity[b.status]??4)).map(item=><article className={`finding ${item.status}`} key={item.id}><h3>{item.title}</h3><p>{item.message}</p><span className={`badge status-${item.status}`}>{item.status==='issue'?'Issue found':item.status==='not_checked'?'Not checked':'Needs review'}</span><details><summary>View check details</summary><p>Check {item.rule_id}</p>{item.expected&&<div className="evidence-values"><span>Observed<strong>{['M04','M02'].includes(item.rule_id)?formatMoney(item.observed):item.observed}</strong></span><span>Arithmetic expected<strong>{['M04','M02'].includes(item.rule_id)?formatMoney(item.expected):item.expected}</strong></span></div>}</details></article>)}</div>;
+}
