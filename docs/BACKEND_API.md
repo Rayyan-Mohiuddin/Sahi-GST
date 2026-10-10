@@ -138,6 +138,14 @@ Configuration values belong in the hosting environment: production SECRET_KEY, P
 
 ## Verification on 10 October
 
+### Multi-page / AI additions
+
+`ReviewPage` (migration 0003) stores additional ordered page images with cascade deletion; the existing first-image fields/routes remain compatible. Responses add `image_urls`; `/api/reviews/{uuid}/pages/{page_id}/` enforces review ownership. Up to 5 pages, **3 MB total**, keep base64-encoded saving under Vercel's 4.5 MB request limit. Local OCR reads pages sequentially, then parses combined text; it does not add invoice totals across pages. Different/conflicting values remain reviewable.
+
+`POST /api/extract/` accepts repeated `files` (legacy `file` still supported), requires login/consent/free-tier configuration, verifies all image bytes, and sends ordered images to schema-constrained Gemini. It returns classification, nullable fields and uncertainty hints. `POST /api/reviews/{uuid}/explanations/` accepts `language` en/hi/te and optional `use_ai:true`; default returns labelled rule templates. AI mode is owner-protected and login/quota/configuration-gated, with validated finding IDs; it never changes saved findings or calculations.
+
+Rule results add `tax_context`, summing confirmed tax components with Decimal once per invoice. This is invoice GST information, not an ITC eligibility or loss estimate. Missing/invalid amounts yield null. No source image is sent to Google automatically; consent resets when pages change. Local speech uses installed local voices; text stays available without one.
+
 - Live health and session endpoints: 200; database reports PostgreSQL; cloud extraction disabled.
 - Live synthetic API test: CSRF/session, parsing, review creation, expected arithmetic, draft and guest isolation passed; test record removed.
 - Earlier local PostgreSQL suite: 10 tests passed. After importing deployment fixes, local SQLite smoke-test suite (10 tests), root WSGI import, TypeScript and production Next.js export passed. Current live PostgreSQL behaviour was checked separately.

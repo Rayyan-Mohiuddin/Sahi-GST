@@ -39,6 +39,9 @@ The initial user is a small Indian trading business receiving ordinary domestic 
 10. [Continuation, collaboration and manual test work](docs/HANDOFF.md)
 11. [Real image OCR evaluation and test images](docs/OCR_EVALUATION.md)
 12. [Final product vision](docs/PRODUCT_VISION.md) and [OCR engine notes](docs/OCR_ENGINE_NOTES.md)
+13. [AI, market evidence and signature-feature decisions](docs/AI_AND_MARKET.md)
+
+Multi-page/AI branch: camera uses a live browser preview; 1–5 pages of one invoice, 3 MB combined, form one review with preserved private sources. Gemini can provide structured extraction and explanations when configured with a verified unpaid key, login and consent; local OCR remains backup. Hindi/Telugu text and device-local speech are best-effort, requiring human review. Market page uses a sourced ecosystem statistic and explicitly has no invented testimonials. See the handoff for PR/migration order and unverified live-provider/device checks.
 
 The user's operating preference is recorded in AGENTS.md: humans handle hosting dashboards and uploads; Codex spends usage on focused code/debugging. HANDOFF.md carries resume context and work to do during usage resets.
 

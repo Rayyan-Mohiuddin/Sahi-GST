@@ -18,3 +18,12 @@ class Review(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+class ReviewPage(models.Model):
+    review=models.ForeignKey(Review,on_delete=models.CASCADE,related_name='pages')
+    position=models.PositiveSmallIntegerField()
+    data=models.BinaryField()
+    mime=models.CharField(max_length=20)
+    class Meta:
+        ordering=['position']
+        constraints=[models.UniqueConstraint(fields=['review','position'],name='unique_review_page')]

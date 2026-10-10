@@ -46,6 +46,16 @@ Record actual events. Status values: resolved in planning, verified fixed, open,
 
 ## Append template
 
+### Camera, pages and AI relevance
+
+- **Laptop capture opened a file picker:** capture attribute only hints to mobile pickers. Replaced it with live getUserMedia video preview, explicit capture, permission errors and stopped tracks on close/unmount. Hardware/browser permission verification remains manual.
+- **Multiple pages:** added ordered page inputs, sequential local OCR or one multi-image Gemini request, preserved additional private pages and retained legacy first-image routes. Migration 0003 is required.
+- **Hosting payload cap:** Vercel documents a 4.5 MB function request/response limit. Capped raw invoice pages at 3 MB combined to leave base64/JSON overhead; did not introduce new paid storage. Source: https://vercel.com/docs/functions/limitations.
+- **Repeated/hidden sidebar controls:** removed duplicate profile, relabelled account menu, made navigation scroll inside viewport and hid decorative note on short screens.
+- **AI gap:** built actual structured extraction and finding-ID-grounded explanation adapters, with local backup/templates explicitly labelled. Mock tests pass; owner's live free key and a live run are still required.
+- **Unsupported financial promise:** changed requested risk meter to known GST amount under review. Invoice-only checks cannot calculate blocked ITC or guaranteed savings.
+- **Market proof:** added cited 1.65 crore ecosystem statistic and marked payer/interview claims unvalidated. No fabricated quotes.
+
 ### Review completion fixes
 
 - **Non-invoice uploads:** file type/size checks alone did not distinguish content. Added invoice-like OCR-text screening and local-OCR save gate; rejected/unreadable images offer retry/manual entry without that image. Not an authenticity classifier.

@@ -21,6 +21,8 @@ The user supplied requirements, the locked stack, deadline correction, product n
 
 ## Submission-ready template
 
+Multi-page/AI work: user identified desktop camera, sidebar and AI/market gaps and supplied signature priorities; Codex implemented camera preview, multi-page ingestion/storage, AI extraction/wording adapters, language/voice/WhatsApp controls, a bounded GST context figure and cited market page. User will configure unpaid Gemini and verify physical-device/live-provider flows. No completed interview or live-model accuracy claim yet.
+
 Review completion: user reproduced five workflow gaps; Codex implemented invoice-like screening, private image retention, PDF reports, Finish and workspace actions. Evidence: fix/invoice-review-completion, migration 0002, 20 backend tests and rendered report sample. Human merged-deployment/device tests remain to be recorded.
 
 Mobile review work: user identified GSTIN misreads, camera/file ambiguity and Back leaving the app. Codex separated capture controls, added navigation/history handling, extracted five UI components, introduced explicit GSTIN review and documented product vision/engine comparison. Current frontend tests and type checking pass; human physical-phone and alternative-engine benchmarks remain pending.
