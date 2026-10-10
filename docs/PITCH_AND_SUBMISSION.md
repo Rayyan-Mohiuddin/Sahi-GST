@@ -114,3 +114,9 @@ The first three categories total 65%. This is a prioritization guide, not a reas
 - [ ] Submit all fields by **07:00 IST**, save confirmation and reopen links once.
 
 Keep video and large slide exports outside the source ZIP unless the event explicitly requires them there. A 10 MB limit is not a reason to remove source files needed to rebuild.
+
+
+## Walk-up jury pitch (30 seconds)
+“Sahi GST turns an invoice into a clear next action. AI reads it, the user confirms uncertain details, and transparent rules catch missing fields and mismatched totals. We explain the findings in Hindi or Telugu and prepare a supplier correction message—so small businesses spend less time chasing invoice mistakes.”
+
+Stay signed in. Show a labelled synthetic invoice, the planted total mismatch, its explanation, then supplier draft. Say “GST under review,” not “credit lost.” If live AI fails, disclose the failure and use local OCR or the labelled sample. AI proposes fields/wording; deterministic rules calculate findings. Do not claim live AI, physical phone coverage or interviews not evidenced.

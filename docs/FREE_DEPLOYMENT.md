@@ -12,7 +12,7 @@ The observed synthetic-image test misread GSTIN characters. Human review is nece
 
 [Google's pricing page](https://ai.google.dev/gemini-api/docs/pricing) lists free-tier access to selected models with quotas and product-improvement data use. Create/use an unpaid API project, select a model explicitly listed with a free tier, and confirm its actual quota. Do not attach billing, enable paid fallback, or upgrade to solve a quota error.
 
-Set GEMINI_API_KEY only in server environment settings, GEMINI_MODEL to an available free-tier model and GEMINI_FREE_TIER_CONFIRMED=1 only after checking the account. The adapter defaults to gemini-3.8-flash based on the pricing page read during this session; model availability must still be checked in the account. No client-side key or key committed to Git.
+Set GEMINI_API_KEY only in server environment settings, GEMINI_MODEL to an available free-tier model and GEMINI_FREE_TIER_CONFIRMED=1 only after checking the account. The adapter defaults to gemini-2.5-flash; verify availability and unpaid quota in your account. Explicit Vercel GEMINI_MODEL values override the code default. No client-side key or key committed to Git.
 
 Cloud scans require sign-in and per-upload consent. Use synthetic or suitably redacted invoices on unpaid cloud processing; do not send confidential financial documents into a free-tier product-improvement pipeline. Quota exhaustion returns an error and the local OCR option; there is no automatic paid provider.
 

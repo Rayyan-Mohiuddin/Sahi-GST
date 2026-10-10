@@ -101,3 +101,20 @@ class ReleaseFallbackTests(TestCase):
         response = self.client.post(url, {'language': 'te'}, content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['source'], 'rule')
+
+
+class ProviderDiagnosticsTests(TestCase):
+    @override_settings(GEMINI_API_KEY='test-only', GEMINI_FREE_TIER_CONFIRMED=True)
+    @patch('invoices.views.extract_fields')
+    def test_model_and_quota_errors_are_actionable(self, extract):
+        from urllib.error import HTTPError
+        user = get_user_model().objects.create_user(username='diagnostics')
+        for code, expected in [(404, 'AI model unavailable'), (403, 'AI access denied'), (429, 'AI free quota')]:
+            self.client.force_login(user)
+            session = self.client.session
+            session.pop('last_extraction', None)
+            session.save()
+            extract.side_effect = HTTPError('https://example.invalid', code, 'secret provider detail', {}, None)
+            response = self.client.post('/api/extract/', {'file': SimpleUploadedFile('invoice.png', image_bytes(), content_type='image/png'), 'consent': 'true'})
+            self.assertContains(response, expected, status_code=429 if code == 429 else 502)
+            self.assertNotIn('secret provider detail', response.content.decode())
