@@ -100,7 +100,9 @@ The package script uses tracked source files and fails at 10 MB. Dependency fold
 
 The connected workspace includes invoice history, review findings, supplier-request drafts and downloadable evidence. It is not a filing/accounting suite. No fake GSTN integration, automated supplier sending or payment system is presented as complete. Free OCR is neural OCR, not an LLM. First use downloads model assets; network is needed for the app's server checks.
 
-Guest records are scoped to the session and visible for 24 hours; expired guest records are removed when the session endpoint next runs. Account records persist until deleted. Original image bytes are not saved by the app. Gemini, when enabled, has its own processing policy and requires explicit consent. Do not upload confidential invoices to an unpaid cloud tier without evaluating those terms.
+Guest records are scoped to the session and visible for 24 hours; expired guest records are removed when the session endpoint next runs. Account records persist until deleted. When image saving is selected, the original image is stored privately in PostgreSQL with the review and retrieved through an owner/session-protected endpoint; deletion removes it. Older reviews without saved images cannot recover the originals. Gemini has its own processing policy and requires explicit consent.
+
+The review-completion branch adds invoice-like content screening after OCR, PDF reports, a Finish action and a working workspace menu. Content screening is a heuristic, not invoice authenticity verification; unreadable invoices can need retry or manual entry. PDF is the user-facing report format; JSON remains an optional data export. Migration 0002 adds private source-image storage.
 
 ## Success criteria
 

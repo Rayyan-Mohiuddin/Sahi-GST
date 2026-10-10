@@ -10,11 +10,14 @@ from django.core.exceptions import ValidationError
 from django.http import JsonResponse, FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db.models import Case,When,Value,BooleanField
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from .models import Review
 from .rules import validate, correction_draft, clean_fields, FIELDS
 from .parser import parse_invoice
+from .document_check import check_invoice_text
+from .report import build_report
 
 def error(message, status=400): return JsonResponse({'error': message}, status=status)
 
@@ -29,7 +32,11 @@ def owned(request):
     return Review.objects.filter(owner__isnull=True, session_key=request.session.session_key, created_at__gte=timezone.now() - timedelta(hours=24))
 
 def serialize(review):
-    return {'id': str(review.id), 'fields': review.fields, 'result': review.result, 'source': review.source, 'status': review.status, 'created_at': review.created_at.isoformat(), 'original_id': str(review.original_id) if review.original_id else None, 'draft': correction_draft(review.fields, review.result)}
+    has_image=review.image_saved if hasattr(review,'image_saved') else bool(review.source_image)
+    return {'id': str(review.id), 'fields': review.fields, 'result': review.result, 'source': review.source, 'status': review.status, 'created_at': review.created_at.isoformat(), 'original_id': str(review.original_id) if review.original_id else None, 'draft': correction_draft(review.fields, review.result), 'image_url': f'/api/reviews/{review.id}/image/' if has_image else None, 'report_url': f'/api/reviews/{review.id}/report/'}
+
+def metadata(query):
+    return query.defer('source_image').annotate(image_saved=Case(When(source_image__isnull=False,then=Value(True)),default=Value(False),output_field=BooleanField()))
 
 @ensure_csrf_cookie
 def session(request):
@@ -48,7 +55,7 @@ def health(request):
 @require_http_methods(['GET', 'POST'])
 def reviews(request):
     if request.method == 'GET':
-        return JsonResponse({'reviews': [serialize(x) for x in owned(request)[:100]]})
+        return JsonResponse({'reviews': [serialize(x) for x in metadata(owned(request))[:100]]})
     try:
         data = body(request)
         if data.get('scope_confirmed') is not True:
@@ -56,26 +63,66 @@ def reviews(request):
         source = data.get('source', 'manual')
         if source not in ['manual', 'local_ocr', 'gemini', 'sample']:
             return error('Unknown extraction source.')
+        if source == 'local_ocr':
+            ocr_text = data.get('ocr_text', '')
+            if not isinstance(ocr_text,str) or len(ocr_text)>30000 or check_invoice_text(ocr_text)['status'] != 'invoice_like':
+                return error('Invoice-like text was not recognized. Retry with an invoice image or use manual entry.',422)
         if not request.session.session_key: request.session.create()
         if owned(request).filter(created_at__gte=timezone.now()-timedelta(minutes=1)).count() >= 10:
             return error('Please wait a minute before creating more reviews.', 429)
         result = validate(data.get('fields', {}))
         original_id = data.get('original_id')
+        image_bytes, image_mime = None, ''
         if original_id:
             original = get_object_or_404(owned(request), id=original_id)
             original_id = original.id
-        review = Review.objects.create(owner=request.user if request.user.is_authenticated else None, session_key='' if request.user.is_authenticated else request.session.session_key, fields=result['fields'], result=result, source=source, status=result['status'], original_id=original_id)
+        if data.get('save_image') is True:
+            if data.get('image_data'):
+                try:
+                    image_bytes=base64.b64decode(data['image_data'],validate=True)
+                    if len(image_bytes)>5*1024*1024: return error('Image must be under 5 MB.')
+                    image=Image.open(io.BytesIO(image_bytes))
+                    if image.format not in ['JPEG','PNG'] or image.width*image.height>20_000_000: return error('Unsupported image.')
+                    image_mime='image/png' if image.format=='PNG' else 'image/jpeg'
+                    image.verify()
+                except (ValueError,TypeError,UnidentifiedImageError,OSError,Image.DecompressionBombError): return error('Invalid image data.')
+            elif original_id:
+                image_bytes,image_mime=original.source_image,original.source_mime
+        review = Review.objects.create(owner=request.user if request.user.is_authenticated else None, session_key='' if request.user.is_authenticated else request.session.session_key, fields=result['fields'], result=result, source=source, status=result['status'], original_id=original_id,source_image=image_bytes,source_mime=image_mime)
         return JsonResponse(serialize(review), status=201)
     except (ValueError, TypeError, json.JSONDecodeError, ValidationError):
         return error('Invalid invoice fields. Check the format and try again.')
 
 @require_http_methods(['GET', 'DELETE'])
 def detail(request, ident):
-    review = get_object_or_404(owned(request), id=ident)
+    review = get_object_or_404(metadata(owned(request)), id=ident)
     if request.method == 'DELETE':
         review.delete()
         return JsonResponse({'deleted': True})
     return JsonResponse(serialize(review))
+
+@require_http_methods(['GET'])
+def review_image(request,ident):
+    review=get_object_or_404(owned(request).only('source_image','source_mime'),id=ident)
+    if not review.source_image: return error('No original image was saved for this review.',404)
+    response=HttpResponse(bytes(review.source_image),content_type=review.source_mime)
+    response['Cache-Control']='private, no-store'
+    return response
+
+@require_http_methods(['GET'])
+def review_report(request,ident):
+    review=get_object_or_404(owned(request),id=ident)
+    response=HttpResponse(build_report([review]),content_type='application/pdf')
+    response['Content-Disposition']=f'attachment; filename="Sahi-GST-{review.id}.pdf"'
+    response['Cache-Control']='private, no-store'
+    return response
+
+@require_http_methods(['GET'])
+def all_reports(request):
+    response=HttpResponse(build_report(list(owned(request).defer('source_image')[:100])),content_type='application/pdf')
+    response['Content-Disposition']='attachment; filename="Sahi-GST-reviews.pdf"'
+    response['Cache-Control']='private, no-store'
+    return response
 
 @require_http_methods(['POST'])
 def parse(request):
@@ -83,7 +130,7 @@ def parse(request):
         data = body(request)
         text = data.get('text', '')
         if not isinstance(text, str) or len(text) > 30000: return error('Text must be under 30,000 characters.')
-        return JsonResponse({**parse_invoice(text), 'source': 'local_ocr', 'message': 'Best-effort label matching. Confirm every field against the original.'})
+        return JsonResponse({**parse_invoice(text), 'document_check':check_invoice_text(text), 'source': 'local_ocr', 'message': 'Best-effort label matching. Confirm every field against the original.'})
     except (ValueError, TypeError): return error('Invalid request.')
 
 @require_http_methods(['POST'])

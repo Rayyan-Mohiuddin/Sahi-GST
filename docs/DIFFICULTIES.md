@@ -46,6 +46,16 @@ Record actual events. Status values: resolved in planning, verified fixed, open,
 
 ## Append template
 
+### Review completion fixes
+
+- **Non-invoice uploads:** file type/size checks alone did not distinguish content. Added invoice-like OCR-text screening and local-OCR save gate; rejected/unreadable images offer retry/manual entry without that image. Not an authenticity classifier.
+- **JSON reports:** added owner-protected PDF downloads, ReportLab dependency and wrapped report sections; JSON stays optional. Rendered a synthetic sample to inspect both pages and corrected a split checklist heading.
+- **No Finish:** added a Finish action after the supplier draft, closing the saved review without claiming issues are resolved.
+- **Missing recent image:** earlier design deliberately discarded sources. Added optional private original bytes/mime to PostgreSQL with migration, owned retrieval, no-store headers and deletion/expiry. Old discarded images cannot be reconstructed.
+- **Inactive workspace control:** replaced decorative dropdown with inbox/privacy/account actions. Does not pretend to provide multi-organization switching.
+- **Checks:** 20 backend tests verify screening, image validation/opt-out, ownership, PDF access and deletion; 8 existing frontend tests and typecheck pass. Device/browser flow validation remains to do after merge.
+- **Local PostgreSQL unavailable:** separate rerun hung on connection establishment; a five-second connection probe confirmed timeout. Stopped the run. SQLite tests, migration generation, production build and PDF visual QA pass; live PostgreSQL verification is required after deployment.
+
 ### Mobile capture, navigation and GSTIN trust
 
 - **Camera opened from generic upload:** original single file input had capture=environment. Replaced it with separate file input without capture and camera input with capture, exposed as two clear actions. OS/browser picker details still vary; physical-device test pending.

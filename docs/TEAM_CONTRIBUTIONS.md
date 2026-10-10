@@ -21,6 +21,8 @@ The user supplied requirements, the locked stack, deadline correction, product n
 
 ## Submission-ready template
 
+Review completion: user reproduced five workflow gaps; Codex implemented invoice-like screening, private image retention, PDF reports, Finish and workspace actions. Evidence: fix/invoice-review-completion, migration 0002, 20 backend tests and rendered report sample. Human merged-deployment/device tests remain to be recorded.
+
 Mobile review work: user identified GSTIN misreads, camera/file ambiguity and Back leaving the app. Codex separated capture controls, added navigation/history handling, extracted five UI components, introduced explicit GSTIN review and documented product vision/engine comparison. Current frontend tests and type checking pass; human physical-phone and alternative-engine benchmarks remain pending.
 
 Image evaluation work: user completed collaborator invitation acceptance; Codex pushed shared branches, generated 3 synthetic image fixtures and ran actual local OCR/parser evaluation. Result: 19/20 present fields correct, 2/2 unknowns preserved, with one identifier misread surfaced for review. Scripts and OCR_EVALUATION.md provide evidence. Human phone/laptop and unseen-invoice tests remain to be logged.

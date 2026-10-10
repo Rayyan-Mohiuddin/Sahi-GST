@@ -55,6 +55,9 @@ All routes have a trailing slash. POST/DELETE requests require Django CSRF handl
 | GET `/api/reviews/` | Session/account | Up to 100 newest reviews belonging to that user/session |
 | POST `/api/reviews/` | JSON `fields`, `source`, `scope_confirmed: true`, optional `original_id` | 201 with a newly saved review, deterministic result and draft |
 | GET `/api/reviews/{uuid}/` | Session/account | Owned review and draft; another session receives 404 |
+| GET `/api/reviews/{uuid}/image/` | Session/account | Saved original image; owner/session checks and private no-store cache policy |
+| GET `/api/reviews/{uuid}/report/` | Session/account | Downloadable readable PDF; owner/session checks |
+| GET `/api/reviews/report/` | Session/account | PDF of up to 100 owned review records |
 | DELETE `/api/reviews/{uuid}/` | CSRF + ownership | Deletes the owned review; does not delete other users' reviews |
 | POST `/api/extract/` | Multipart `file`, `consent=true` | Optional Gemini structured fields; requires signed-in user and configured free-tier consent flag |
 | `/accounts/…` | Allauth forms | Signup/login/logout with sessions and CSRF |
@@ -115,7 +118,11 @@ Statuses: `issue`, `review`, `pass`, `not_checked`. A review becomes `checked` w
 
 Logged-in queries filter by owner. Guest queries filter by session and a 24-hour window. Expired guest records are deleted on the next session-endpoint request, not by a precisely timed background scheduler. Account reviews persist until deleted. Guest and account histories are separate.
 
-Source image bytes are not saved by this application. Reopening a saved review shows fields/results, not a retained original image. `original_id` links review runs; it does not prove the supplier issued a corrected document, resolve older drafts, or provide full invoice-lifecycle reconciliation.
+Image retention is now optional and explicit. POST reviews can include `save_image: true` plus base64 `image_data`. Django verifies the actual JPEG/PNG bytes, 5 MB and 20-megapixel limits, then stores original bytes/mime privately in the review row. Metadata responses include protected `image_url` and `report_url`; list queries do not load image blobs. With no new image, a selected saved image can be inherited from the owned original review. Deleting/expiring the review deletes its image. Older images that were never stored remain unavailable. `original_id` links review runs but does not prove supplier correction or resolve older drafts.
+
+`/api/parse/` also returns `document_check`, screening OCR text for independent invoice/reference/amount/party cues. Local-OCR review creation requires invoice-like OCR text (`ocr_text`); unrelated or unrecognized text gets 422. This is a content heuristic with possible false positives/negatives, not authenticity or tax-document classification. Manual entry without the rejected image remains available.
+
+PDF reports use the free ReportLab library with bundled fonts, wrapped tables/findings, rule version, unchecked areas and supplier draft. They use INR labels and IST timestamps. JSON remains optional developer data. The frontend Finish action closes the already saved review; it does not mark supplier issues resolved. Workspace dropdown actions open the inbox/privacy view or sign-in/sign-out; multiple organization workspaces are not implemented.
 
 ## Optional LLM and zero-cost operation
 
