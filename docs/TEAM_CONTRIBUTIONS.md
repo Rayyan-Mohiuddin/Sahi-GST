@@ -54,3 +54,5 @@ Examples of appropriate specificity, only if true:
 - User prioritized availability/security and supplied intermittent provider-error wording. Codex checked production HTTPS/session and added redacted provider diagnostics plus incident runbook; did not claim warnings cleared.
 
 - User supplied production 502 timing and request metadata; Codex correlated 35.14s with configured timeout and implemented/tested error separation. Provider recovery not claimed.
+
+- User supplied first-round jury feedback. Codex researched official Google/MeitY/ICAI and evaluation/pitch sources, created practitioner interview kit and measurement template, generated illustrative invoice art and authored/visually checked ten-slide deck. No CA interview, customer endorsement or security clearance claimed.

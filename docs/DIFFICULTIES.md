@@ -127,3 +127,5 @@ User reported intermittent AI success, long mobile waiting, provider-unavailable
 - Generic AI provider errors lacked root-cause evidence. Added status/model/elapsed-only logging, with test excluding key, invoice and provider text. HTTPS200/HSTS verified, but browser reputation warning remains unclassified. No global Google outage established.
 
 - Catch-all extraction error mislabeled possible 35-second timeouts as unverifiable fields. Distinct timeout and transport handlers now preserve correct recovery guidance; direct and URLError-wrapped timeout regressions pass.
+
+- Canva connection rejected generation for reauthentication. Used local editable PPTX authoring. Initial local image path failed to render; embedded image bytes instead, then inspected all ten slides. Privacy research exposed stricter unpaid-Gemini data restrictions than a consent checkbox alone; documented synthetic-only cloud-demo recommendation and unimplemented real-data launch gates.
