@@ -67,3 +67,37 @@ class AIAdapterTests(TestCase):
             response=a.post(url,data={'language':lang},content_type='application/json');self.assertEqual(response.status_code,200);self.assertEqual(response.json()['source'],'rule')
         self.assertEqual(b.post(url,data={'language':'en'},content_type='application/json').status_code,404)
         self.assertEqual(a.post(url,data={'use_ai':True},content_type='application/json').status_code,401)
+
+
+class ReleaseFallbackTests(TestCase):
+    @override_settings(GEMINI_API_KEY='', GEMINI_FREE_TIER_CONFIRMED=False)
+    @patch('invoices.gemini.request_json')
+    def test_no_key_local_parse_review_languages_and_pdf(self, provider):
+        self.assertFalse(self.client.get('/api/session/').json()['cloud_extraction'])
+        self.assertEqual(self.client.post('/api/extract/').status_code, 503)
+        text = 'Tax invoice\nSupplier: Demo supplier\nInvoice No: DEMO-001\nTaxable Value: 10000\nCGST: 900\nSGST: 900\nIGST: 0\nRound Off: 0\nGrand Total: 12800'
+        parsed = self.client.post('/api/parse/', {'text': text}, content_type='application/json').json()
+        self.assertEqual(parsed['document_check']['status'], 'invoice_like')
+        response = self.client.post('/api/reviews/', {'fields': parsed['fields'], 'source': 'local_ocr', 'ocr_text': text, 'scope_confirmed': True}, content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        review = response.json()
+        self.assertTrue(any(f['status'] == 'issue' for f in review['result']['findings']))
+        self.assertTrue(review['draft'])
+        for language in ['hi', 'te']:
+            wording = self.client.post(f"/api/reviews/{review['id']}/explanations/", {'language': language}, content_type='application/json')
+            self.assertEqual(wording.status_code, 200)
+            self.assertEqual(wording.json()['source'], 'rule')
+        self.assertTrue(self.client.get(review['report_url']).content.startswith(b'%PDF-'))
+        provider.assert_not_called()
+
+    @override_settings(GEMINI_API_KEY='test-only', GEMINI_FREE_TIER_CONFIRMED=True)
+    @patch('invoices.views.explain_findings', side_effect=TimeoutError('provider timed out'))
+    def test_provider_timeout_keeps_rule_explanations_available(self, provider):
+        user = get_user_model().objects.create_user(username='timeout-test')
+        self.client.force_login(user)
+        review = self.client.post('/api/reviews/', {'fields': sample(), 'source': 'sample', 'scope_confirmed': True}, content_type='application/json').json()
+        url = f"/api/reviews/{review['id']}/explanations/"
+        self.assertEqual(self.client.post(url, {'use_ai': True}, content_type='application/json').status_code, 502)
+        response = self.client.post(url, {'language': 'te'}, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['source'], 'rule')

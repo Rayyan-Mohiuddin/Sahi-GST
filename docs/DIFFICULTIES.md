@@ -109,3 +109,6 @@ Never write “fixed” without verification. Record failed attempts when they e
 
 ### Auth layout fix — 10 October
 Allauth entrance pages bypassed account/base.html, leaving login unstyled. Added the current allauth/layouts/base.html override, responsive form styles and checkbox/focus treatment. Two regression tests verify branded forms and signup/login/logout/session behavior (SQLite).
+
+### AI explanation resilience
+Provider timeouts/network errors were not caught by the explanation endpoint. It now returns a recoverable JSON error; rule explanations remain usable. A regression verifies timeout recovery. A key-disabled API flow verifies parsing OCR text, review, Hindi/Telugu and PDF without provider calls; this does not replace real phone OCR testing.
