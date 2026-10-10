@@ -46,6 +46,13 @@ Record actual events. Status values: resolved in planning, verified fixed, open,
 
 ## Append template
 
+### Real-image OCR evaluation
+
+- **Collaborator access resolved:** after invitation acceptance, both tested branches pushed successfully to Rayyan's repository. PR review/merge remains a human task; shared main was not changed.
+- **Text tests could not measure OCR:** rendered three synthetic invoice layouts as PNGs and ran the actual free OCR engine, followed by the parser. Got 19/20 present fields correct and 2/2 expected unknowns preserved.
+- **Observed identifier misread:** OCR read buyer GSTIN's Z as 2. Preserved observed text and confirmed the structural hint marks it for human review; no checksum/authenticity or silent auto-correction claim.
+- **Cold-load latency:** initial model/worker loading took about 18 seconds, versus about 1.3 seconds on later scans. Recorded raw timings and a repeatable local evaluation; no universal speed promise.
+
 ### OCR feedback/recovery stage
 
 - **Shared push denied:** collaborator invitation was reported by the user, but git push to Rayyan's repo returned 403 and GitHub still reports read-only access. Work remains on saved feature branches in Salman's repo. Invitation acceptance/account check is the human's next step.

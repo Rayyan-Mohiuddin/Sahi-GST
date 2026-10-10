@@ -21,6 +21,8 @@ The user supplied requirements, the locked stack, deadline correction, product n
 
 ## Submission-ready template
 
+Image evaluation work: user completed collaborator invitation acceptance; Codex pushed shared branches, generated 3 synthetic image fixtures and ran actual local OCR/parser evaluation. Result: 19/20 present fields correct, 2/2 unknowns preserved, with one identifier misread surfaced for review. Scripts and OCR_EVALUATION.md provide evidence. Human phone/laptop and unseen-invoice tests remain to be logged.
+
 OCR recovery work: Codex added actionable parser hints, field highlighting and local OCR timeout/cancel handling with 16 backend and 4 worker-lifecycle tests passing, plus TypeScript/production build. User coordinates collaborator access and subsequent manual device testing. Rayyan's review/merge/deployment is not yet completed for these branches.
 
 Latest work: user confirmed shared-branch/PR collaboration; Codex implemented conservative OCR-text parsing improvements and five synthetic layout fixtures, with 14 backend tests passing. Evidence: feature/invoice-extraction branch. Rayyan's merge/deployment of this feature is pending; record his actual review/testing once completed.
