@@ -21,6 +21,8 @@ The user supplied requirements, the locked stack, deadline correction, product n
 
 ## Submission-ready template
 
+Mobile review work: user identified GSTIN misreads, camera/file ambiguity and Back leaving the app. Codex separated capture controls, added navigation/history handling, extracted five UI components, introduced explicit GSTIN review and documented product vision/engine comparison. Current frontend tests and type checking pass; human physical-phone and alternative-engine benchmarks remain pending.
+
 Image evaluation work: user completed collaborator invitation acceptance; Codex pushed shared branches, generated 3 synthetic image fixtures and ran actual local OCR/parser evaluation. Result: 19/20 present fields correct, 2/2 unknowns preserved, with one identifier misread surfaced for review. Scripts and OCR_EVALUATION.md provide evidence. Human phone/laptop and unseen-invoice tests remain to be logged.
 
 OCR recovery work: Codex added actionable parser hints, field highlighting and local OCR timeout/cancel handling with 16 backend and 4 worker-lifecycle tests passing, plus TypeScript/production build. User coordinates collaborator access and subsequent manual device testing. Rayyan's review/merge/deployment is not yet completed for these branches.

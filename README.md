@@ -38,6 +38,7 @@ The initial user is a small Indian trading business receiving ordinary domestic 
 9. [Actual backend/API guide](docs/BACKEND_API.md)
 10. [Continuation, collaboration and manual test work](docs/HANDOFF.md)
 11. [Real image OCR evaluation and test images](docs/OCR_EVALUATION.md)
+12. [Final product vision](docs/PRODUCT_VISION.md) and [OCR engine notes](docs/OCR_ENGINE_NOTES.md)
 
 The user's operating preference is recorded in AGENTS.md: humans handle hosting dashboards and uploads; Codex spends usage on focused code/debugging. HANDOFF.md carries resume context and work to do during usage resets.
 
