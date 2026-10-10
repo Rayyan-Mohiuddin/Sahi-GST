@@ -51,7 +51,7 @@ All routes have a trailing slash. POST/DELETE requests require Django CSRF handl
 |---|---|---|
 | GET `/api/health/` | None | Database `SELECT 1`; 200 when ready, 503 if unavailable |
 | GET `/api/session/` | Session cookies | Auth state, username, cloud configuration and database type; creates guest session and clears expired guest reviews |
-| POST `/api/parse/` | JSON `text`, up to 30,000 characters | Best-effort extracted `fields`, source `local_ocr` and review warning |
+| POST `/api/parse/` | JSON `text`, up to 30,000 characters | `fields`, `review_fields`, `extracted_count`, `field_count`, source `local_ocr` and review warning |
 | GET `/api/reviews/` | Session/account | Up to 100 newest reviews belonging to that user/session |
 | POST `/api/reviews/` | JSON `fields`, `source`, `scope_confirmed: true`, optional `original_id` | 201 with a newly saved review, deterministic result and draft |
 | GET `/api/reviews/{uuid}/` | Session/account | Owned review and draft; another session receives 404 |
@@ -91,6 +91,10 @@ Example request:
 Identifiers/date/description omitted above produce review findings; the total check still finds arithmetic expected `11800.00`. This is a synthetic arithmetic example, not a product-rate recommendation.
 
 Response contains `id`, `fields`, `result`, `source`, `status`, `created_at`, `original_id`, `draft`. Result contains rule version, findings, counts, unchecked areas and overall status. Findings contain `rule_id`, field, status, title, message and observed/expected values where applicable.
+
+Parser hints (separate from validation findings) include `field`, `reason`, `message`, and optional observed-line `evidence`. Reasons are `not_extracted`, `uncertain_value`, `conflicting_values`, and `identifier_structure`. Extracted count is only how many non-null values were proposed; it is not accuracy or calibrated AI confidence. Evidence is a text excerpt, not an invented image bounding box. The frontend clears a hint when the user edits its field and still requires full field confirmation.
+
+`frontend/lib/ocr.ts` bounds a local scan to 90 seconds and handles cancellation while the worker loads or recognizes. It terminates workers, including workers that arrive after cancellation, and does not publish late output. This is browser-side OCR recovery; optional cloud processing keeps its existing server timeout. `npm run test --prefix frontend` exercises worker lifecycle with simulated workers using a current Node 22/24 runtime.
 
 ## Rules and boundaries
 

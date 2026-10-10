@@ -14,7 +14,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 from .models import Review
 from .rules import validate, correction_draft, clean_fields, FIELDS
-from .parser import parse_text
+from .parser import parse_invoice
 
 def error(message, status=400): return JsonResponse({'error': message}, status=status)
 
@@ -83,7 +83,7 @@ def parse(request):
         data = body(request)
         text = data.get('text', '')
         if not isinstance(text, str) or len(text) > 30000: return error('Text must be under 30,000 characters.')
-        return JsonResponse({'fields': parse_text(text), 'source': 'local_ocr', 'message': 'Best-effort label matching. Confirm every field against the original.'})
+        return JsonResponse({**parse_invoice(text), 'source': 'local_ocr', 'message': 'Best-effort label matching. Confirm every field against the original.'})
     except (ValueError, TypeError): return error('Invalid request.')
 
 @require_http_methods(['POST'])

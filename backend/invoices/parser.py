@@ -2,7 +2,7 @@
 import re
 from datetime import datetime
 from decimal import Decimal
-from .rules import FIELDS
+from .rules import FIELDS, GSTIN
 
 LABELS = {
     'supplier_name': r'(?:supplier|seller)(?!\s+gstin\b)(?:\s+name)?',
@@ -51,9 +51,11 @@ def date_value(value):
             except ValueError: pass
     return None
 
-def parse_text(text):
+def parse_invoice(text):
     result = {key: None for key in FIELDS}
     candidates = {key: [] for key in FIELDS}
+    uncertain = set()
+    evidence = {}
     lines = [line.strip() for line in text.replace('\r', '').split('\n') if line.strip()]
     section = None
     for index, line in enumerate(lines):
@@ -68,17 +70,39 @@ def parse_text(text):
             if not value and index + 1 < len(lines) and not START.match(lines[index + 1]) and not re.match(r'^GSTIN\b', lines[index + 1], re.I):
                 value = lines[index + 1]
             value = re.split(r'\s+(?=(?:invoice\s*(?:no\.?|number|date)|date)\s*[:=])', value, maxsplit=1, flags=re.I)[0]
+            raw_value = value
+            evidence.setdefault(key, line[:250])
             if key in NUMERIC: value = numeric_value(value, rate=key == 'tax_rate')
             elif key == 'invoice_date': value = date_value(value)
             elif key.endswith('gstin'): value = value.upper().replace(' ', '') if value else None
             if value: candidates[key].append(value)
+            elif raw_value: uncertain.add(key)
         match = re.fullmatch(r'GSTIN\s*[:=]?\s*(\S+)', line, re.I)
-        if match and section: candidates[section + '_gstin'].append(match.group(1).upper())
+        if match and section:
+            candidates[section + '_gstin'].append(match.group(1).upper())
+            evidence.setdefault(section + '_gstin', line[:250])
         match = re.search(r'\s+(?:invoice\s+date|date)\s*[:=]\s*(.+)$', line, re.I)
         if match:
             value = date_value(match.group(1))
             if value: candidates['invoice_date'].append(value)
+            else: uncertain.add('invoice_date')
+    review_fields = []
     for key, values in candidates.items():
         unique = {Decimal(x) for x in values} if key in NUMERIC else set(values)
-        if len(unique) == 1: result[key] = values[0]
-    return result
+        if len(unique) == 1 and key not in uncertain: result[key] = values[0]
+        if len(unique) > 1:
+            reason, message = 'conflicting_values', 'More than one value was read. Confirm the correct value from the original.'
+        elif key in uncertain:
+            reason, message = 'uncertain_value', 'Text was found but could not be read unambiguously. Confirm it from the original.'
+        elif result[key] is None:
+            reason, message = 'not_extracted', 'Not extracted. Enter the printed value; leave unknown values blank.'
+        elif key.endswith('gstin') and not GSTIN.fullmatch(result[key]):
+            reason, message = 'identifier_structure', 'Check the OCR spelling against the original GSTIN. This is a pattern check only.'
+        else:
+            continue
+        review_fields.append({'field': key, 'reason': reason, 'message': message, 'evidence': evidence.get(key)})
+    return {'fields': result, 'review_fields': review_fields, 'extracted_count': sum(value is not None for value in result.values()), 'field_count': len(FIELDS)}
+
+def parse_text(text):
+    """Compatibility wrapper used by rule/fixture callers."""
+    return parse_invoice(text)['fields']

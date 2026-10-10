@@ -21,6 +21,8 @@ The user supplied requirements, the locked stack, deadline correction, product n
 
 ## Submission-ready template
 
+OCR recovery work: Codex added actionable parser hints, field highlighting and local OCR timeout/cancel handling with 16 backend and 4 worker-lifecycle tests passing, plus TypeScript/production build. User coordinates collaborator access and subsequent manual device testing. Rayyan's review/merge/deployment is not yet completed for these branches.
+
 Latest work: user confirmed shared-branch/PR collaboration; Codex implemented conservative OCR-text parsing improvements and five synthetic layout fixtures, with 14 backend tests passing. Evidence: feature/invoice-extraction branch. Rayyan's merge/deployment of this feature is pending; record his actual review/testing once completed.
 
 **[Name]** designed/implemented **[specific feature]**, integrated **[specific component]**, and verified **[specific behaviour]** using **[test/evidence]**. Also contributed **[research, design or pitching activity]**. Evidence: **[commit or artifact]**.

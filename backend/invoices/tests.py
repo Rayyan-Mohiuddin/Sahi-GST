@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from .rules import validate, correction_draft
-from .parser import parse_text
+from .parser import parse_text, parse_invoice
 import json
 from pathlib import Path
 
@@ -29,6 +29,17 @@ class ParserLayoutTests(TestCase):
         self.assertEqual(parsed['taxable_value'], '10000')
         self.assertIsNone(parsed['total'])
         self.assertEqual(parsed['round_off'], '-0.50')
+
+    def test_review_hints_preserve_uncertainty(self):
+        result = parse_invoice('Date: 10/11/2026\nGrand total: 1000\nGrand total: 2000\nSupplier GSTIN: 27ABCDE1234F125')
+        hints = {item['field']: item for item in result['review_fields']}
+        self.assertEqual(hints['invoice_date']['reason'], 'uncertain_value')
+        self.assertEqual(hints['total']['reason'], 'conflicting_values')
+        self.assertEqual(hints['supplier_gstin']['reason'], 'identifier_structure')
+        self.assertEqual(result['extracted_count'], 1)
+        self.assertEqual(result['field_count'], 15)
+        self.assertIsNone(result['fields']['invoice_date'])
+        self.assertEqual(hints['total']['evidence'], 'Grand total: 1000')
 
 def sample():
     return {'supplier_name': 'Demo Supplies', 'supplier_gstin': '27ABCDE1234F1Z5', 'buyer_name': 'Demo Buyer', 'buyer_gstin': '27PQRST5678L1Z2', 'invoice_number': 'DEMO/001', 'invoice_date': '2026-10-09', 'description': 'Synthetic goods', 'taxable_value': '10000', 'cgst': '900', 'sgst': '900', 'igst': '0', 'tax_rate': '18', 'total': '12800', 'round_off': '0'}
@@ -82,3 +93,10 @@ class ApiTests(TestCase):
 
     def test_bad_json(self):
         self.assertEqual(Client().post('/api/parse/', data='[]', content_type='application/json').status_code, 400)
+
+    def test_parse_api_returns_actionable_hints(self):
+        response = Client().post('/api/parse/', data={'text':'CGST: 9%\nBuyer GSTIN: 27PQRST5678L1Z2'}, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        result = response.json()
+        self.assertIsNone(result['fields']['cgst'])
+        self.assertEqual(next(x['reason'] for x in result['review_fields'] if x['field']=='cgst'), 'uncertain_value')

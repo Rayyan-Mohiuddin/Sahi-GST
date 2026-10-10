@@ -46,6 +46,13 @@ Record actual events. Status values: resolved in planning, verified fixed, open,
 
 ## Append template
 
+### OCR feedback/recovery stage
+
+- **Shared push denied:** collaborator invitation was reported by the user, but git push to Rayyan's repo returned 403 and GitHub still reports read-only access. Work remains on saved feature branches in Salman's repo. Invitation acceptance/account check is the human's next step.
+- **Invisible extraction gaps:** added parser hints distinguishing absent, uncertain, conflicting and structurally suspicious fields, with actual OCR-line evidence. UI presents field coverage instead of false confidence percentages.
+- **Potential stuck scans and stale results:** added a 90-second limit and cancellation. Late-created workers are terminated; late recognition results cannot overwrite fields. Controls prevent field/file edits during scanning.
+- **Verification:** 16 backend tests, 4 simulated-worker lifecycle tests, TypeScript and production export pass. Manual phone/laptop scan-and-cancel verification remains pending.
+
 ### Invoice extraction branch on 10 October
 
 - **Collaboration assumptions:** fetched teammate/main and verified local code contains all friend's current commits plus our one documentation/confirmation commit. Started feature/invoice-extraction. GitHub reports Salman has read-only access to Rayyan's repo; documented collaborator/PR setup and the temporary Git merge handoff.

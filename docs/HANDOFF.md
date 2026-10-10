@@ -69,11 +69,24 @@ Next: test 3–5 redacted/synthetic **images** with local OCR and record misread
 
 ### Delivering this feature to the shared repo
 
+Latest access check: the attempted `git push teammate feature/invoice-extraction` returned 403, and GitHub still reports `push: false` for the authenticated Salman account. Verify Rayyan invited **Salman-a-gamer**, then accept the invitation. Invitation sent is not the same as accepted write access. Do not repeatedly retry pushes until access changes.
+
+Branches to merge in order:
+
+1. `feature/invoice-extraction` — parser/layout changes plus previous docs/confirmation fix.
+2. `feature/ocr-review-recovery` — extraction feedback and bounded/cancellable OCR; depends on the first branch.
+
+Both are saved in Salman's repository while teammate access is blocked. Once access works, push them to teammate. On Rayyan's GitHub repo, choose **Pull requests → New pull request**, base **main**, compare **feature/invoice-extraction**. Review Files changed, add a concise description/test results, and create the PR. Rayyan reviews/merges it, verifies deployment, then repeat for the recovery branch. If the first PR is squash-merged, rebase/cherry-pick the second feature carefully so its PR does not repeat the first patch; ask Codex to handle that rather than force-pushing shared main.
+
 After Rayyan grants collaborator access, push this branch to `teammate` and open a PR targeting Rayyan's `main`. The branch includes the earlier docs/confirmation commit missing from his main. Review that complete diff. Once merged, both teammates pull shared main before starting the next branch.
 
 Until then, the branch is pushed to Salman's repo. Rayyan can fetch the exact branch using a `salman` remote, run `git merge --ff-only salman/feature/invoice-extraction` from a clean up-to-date main, and push to his origin. If he has newer work and fast-forward fails, review a normal merge. This is a Git merge handoff, not a GitHub pull request across unrelated repositories. Do not present it as already merged/deployed.
 
 ## Work to do while Codex allowance recovers
+
+Recovery stage implemented: `/api/parse/` now returns per-field hints, evidence excerpts, extracted count and total field count. The UI highlights missing/ambiguous fields without inventing model confidence. Local OCR can be cancelled and stops after 90 seconds; late results cannot overwrite fields. Sixteen backend tests, four OCR lifecycle tests, TypeScript and production build pass. No physical-device/UI browser verification or cloud deployment of this stage is claimed.
+
+Manual checks after merging/deploying: scan a clear image and inspect field hints; cancel during OCR model loading; retry; use an ambiguous date and conflicting total; verify the image remains unchanged and only entered fields are checked. Simulated worker tests cover timeout/cancellation; do not deliberately leave the public service busy or claim an unseen-image accuracy result.
 
 1. On the **live URL**, run a sample: ₹12,800 displayed total versus ₹11,800 arithmetic. Check finding, supplier draft and JSON export.
 2. Upload 3–5 clear synthetic/redacted invoices with different layouts. Record exactly which fields OCR/parser got wrong; save minimal reproductions, not confidential documents in Git.
