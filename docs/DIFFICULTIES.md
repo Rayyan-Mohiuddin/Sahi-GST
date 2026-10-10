@@ -145,3 +145,6 @@ User reported a prohibited cursor, not a provider error. Consent/auth gating dis
 - **Problem:** local OCR went straight to label parsing, so camera quality and character ambiguity had no quality/confidence gate; digital PDFs were rejected.
 - **Fix:** added source-preserving browser preprocessing, quality score/warnings, line confidence, auditable safe normalizations, GSTIN checksum validation, selectable-PDF text-first processing and rendered-PDF local OCR fallback.
 - **Verification:** 47 Django tests, 14 frontend tests, TypeScript and production build pass locally. Camera hardware and unseen customer invoices remain unverified.
+
+### Focused-home review
+Friend UI baseline 122b63d imported. Declared pypdf missing locally caused one selectable-PDF test failure; installed dependency, 47 tests pass. Vercel preview deployed but account lacks protected-preview access; localhost saved permissions also deny browser. Requested owner/local access and did not bypass. Visual/Lighthouse/full-preview checks pending. Demo rows were misleadingly opening the same sample for different IDs; made illustrative rows noninteractive.

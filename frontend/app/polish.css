@@ -50,3 +50,5 @@ th{font-size:11px;color:#526173}td{font-size:14px}.row-title strong{font-size:14
  .example-mismatch{margin:4px -8px;padding:8px!important}.example-mismatch small{display:none}.example-difference{padding:12px 16px;flex-direction:row;align-items:baseline;gap:8px}.example-difference strong{font-size:32px;min-width:0}.example-difference>span{font-size:12px}
  .landing-trust{margin:0;font-size:11px;white-space:normal;text-align:center}.landing-scope{font-size:10px;margin:-8px 0 0}
 }
+
+.topbar button:focus-visible,.topbar a:focus-visible{outline-color:var(--ivory)}

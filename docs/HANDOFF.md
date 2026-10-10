@@ -150,3 +150,5 @@ Commit `41cf9e5` adds text-first PDF processing (`/api/parse-document/`) and a c
 
 ## Focused home review — codex/focused-home-review
 Based on friend's focused UI branch 122b63d; preserve its backend/OCR changes as baseline. This review changes frontend presentation only: compact mobile hero, accurate supported-scope copy, noninteractive illustrative demo rows. 47 backend SQLite tests and 14 frontend tests pass after installing declared pypdf locally. Production build and preview/browser/Lighthouse pending. No merge authorised if flow fails. Preview is explicitly requested by user; branch push should trigger existing Git-connected Vercel project without a duplicate project.
+
+Read FOCUSED_HOME_REVIEW.md for exact review results and preview URL. 47 backend SQLite +14 frontend tests and production export pass; main text pairs AA. Preview exists but owner access blocks flow; localhost saved browser permission also blocks. Before screenshots saved; after screenshots/Lighthouse/flow pending. No merge until acceptance. Compare review branch against friend's codex/focused-fintech-home, not main, to isolate UI-only diff.
