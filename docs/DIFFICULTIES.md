@@ -151,3 +151,6 @@ Friend UI baseline 122b63d imported. Declared pypdf missing locally caused one s
 # Preview branch alias — 11 October 2026
 The user-provided focused-home branch alias returns Django 400. Likely ALLOWED_HOSTS mismatch: settings include deployment/production URLs but not branch aliases. Exact Preview-only host and CSRF-origin additions documented in FOCUSED_HOME_REVIEW.md; owner redeploy and verification pending. Canonical preview access remains protected. No backend changes or security weakening.
 
+# Missing language explanations — 11 October 2026
+User reports Hindi/Telugu missing from the app. Source inspection found the language panel depended on a POST response before showing any wording; failed requests could leave it empty. This is a verified code weakness, not a proven diagnosis of the deployed incident. Existing backend messages are now bundled in the frontend, so rule wording renders immediately without a key or explanation API. The selector sits immediately after the GST amount; optional AI failure/timeout returns to the rule wording, and switching language aborts the old request. Template parity and multilingual/status filtering tests pass. Rule engine, extraction and API code are untouched. Preview still needs the documented host configuration fix and human redeploy before live acceptance.
+

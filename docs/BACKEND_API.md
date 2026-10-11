@@ -1,5 +1,7 @@
 # How the backend and API work
 
+UI reliability update, 11 October 2026: the Findings language panel now renders bundled copies of `languages.py` rule messages immediately for English/Hindi/Telugu. Template parity is tested. Normal language switching no longer needs POST `/explanations/`; that existing endpoint is still used for explicitly requested AI wording. AI errors/timeouts leave rule text available; device-installed voices are still required for read-aloud. No API contract, extraction or deterministic check was changed.
+
 Verified against friend's commit `3c349a8` plus the confirmation/UI patch developed on 10 October 2026. Live API tested at https://sahi-gst-d511.vercel.app. Backend/API behaviour below is actual implemented behaviour, not the larger planning roadmap.
 
 ## One request journey

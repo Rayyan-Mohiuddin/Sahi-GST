@@ -58,3 +58,9 @@ Examples of appropriate specificity, only if true:
 - 2026-10-10 | Codex assistance | Implemented camera/scanned OCR preprocessing, quality review gates, confidence transport, safe correction audit, GSTIN checksums and text-first PDF handling | `frontend/lib/image-ocr.ts`, `frontend/lib/pdf-ocr.ts`, `backend/invoices/parser.py`, `backend/invoices/gstin.py` | 47 Django tests, 14 frontend tests, TypeScript and production build | Direct OCR had no quality/confidence path or correction audit |
 
 - Friend's 122b63d supplies focused home, workspace/demo UI and findings styling atop newer OCR. This Codex review adjusts supported-scope copy, mobile/tablet spacing, demo-row honesty and header focus, runs tests/build/contrast checks, pushes preview branch and records access blockers. No after screenshots or phone acceptance claimed.
+# Jury deck and customer conversation — recorded 11 October 2026
+- Salman Imran Syed reports visiting Ratnadeep supermarket in Hanamkonda and speaking with employee Sai Karthik about invoice issues. He supplied a photo and reported similar-problem feedback, product interest and an invitation to follow up. Conversation date was not supplied; this is one qualitative signal, not a corporate endorsement or CA validation. The private contact number is not included.
+- Team identity supplied by Salman: Espada, TRI26278; members Salman Imran Syed and Rayyan Mohiuddin, third-year students at Kakatiya Institute of Technology and Science, Warangal.
+- Codex assisted with a 12-slide editable deck revision, photograph/QR placement, consistent team identity, language examples and clear supported-scope wording. The deck containing the supplied photograph stays a local jury deliverable rather than being automatically published in the Git repository.
+- Codex implemented immediate bundled rule-language wording in the findings UI and focused template-parity/language tests. Live deployment and phone/voice verification remain pending.
+
